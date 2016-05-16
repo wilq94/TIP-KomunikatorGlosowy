@@ -8,6 +8,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using OpenTK;
+using OpenTK.Audio;
 
 namespace KomunikatorGlosowySerwer
 {
@@ -16,6 +18,7 @@ namespace KomunikatorGlosowySerwer
         Login,      //logowanie się na serwer
         Logout,     //wylogowyanie się z serwera
         Message,    //wysłanie wiadomości do wszystkich użytkowników korzystających z serwera
+        Voice,      //wysłanie głosu do wszystkich użytkowników
         List,       //pobranie listy użytkowników korzystających z serwera
         Null        //brak komendy
     }
@@ -31,6 +34,20 @@ namespace KomunikatorGlosowySerwer
         ArrayList clientList;
         Socket serverSocket;
         byte[] byteData = new byte[1024];
+
+        #region Audio fields from OpenTK
+
+        AudioContext audio_context;
+        AudioCapture audio_capture;
+
+        string selectedRecordDevice = AudioCapture.AvailableDevices[0];
+        int src;
+        short[] buffer = new short[512];
+        const byte SampleToByte = 2;
+        bool started = false;
+        static System.Windows.Forms.Timer myTimer = new System.Windows.Forms.Timer();
+
+        #endregion
 
         public VoiceCommunicatorServer()
         {
@@ -69,8 +86,8 @@ namespace KomunikatorGlosowySerwer
 
         private void OnReceive(IAsyncResult ar)
         {
-            try
-            {
+            //try
+            //{
                 IPEndPoint ipeSender = new IPEndPoint(IPAddress.Any, 0);
                 EndPoint epSender = (EndPoint)ipeSender;
 
@@ -125,9 +142,24 @@ namespace KomunikatorGlosowySerwer
                             }
                             ++nIndex;
                         }
-
-                        msgToSend.strMessage = "<<<" + msgReceived.strName + " opuscil pokoj.>>>";
+                           msgToSend.strMessage = "<<<" + msgReceived.strName + " opuscil pokoj.>>>";
                         break;
+
+                        //cos poknocilem - najlepiej od nowa zrobic tak, zeby oddzielic "Data" od wysylania dzwieku
+                        /*case Command.Voice:
+                        byte[] array = Encoding.ASCII.GetBytes(msgReceived.strMessage);
+                        short[] result = new short[array.Length / sizeof(short)];
+                        Buffer.BlockCopy(array, 0, result, 0, result.Length);
+                        //int available_samples = audio_capture.AvailableSamples;
+                        //audio_capture.ReadSamples(result, available_samples);
+
+                        int buf = AL.GenBuffer();
+                        AL.BufferData(buf, ALFormat.Mono16, result, (int)(250 * BlittableValueType.StrideOf(result)), audio_capture.SampleFrequency);
+                        AL.SourceQueueBuffer(src, buf);
+                        if (AL.GetSourceState(src) != ALSourceState.Playing) AL.SourcePlay(src);
+
+                        break;
+                        */
 
                     case Command.Message:
 
@@ -186,12 +218,12 @@ namespace KomunikatorGlosowySerwer
                     serverSocket.BeginReceiveFrom(byteData, 0, byteData.Length, SocketFlags.None, ref epSender,
                         new AsyncCallback(OnReceive), epSender);
                 }
-            }
+            //}
             
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "SGSServerUDP", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            //catch (Exception ex)
+            //{
+             //   MessageBox.Show(ex.Message, "SGSServerUDP1", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
             
         }
 
@@ -203,7 +235,7 @@ namespace KomunikatorGlosowySerwer
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "SGSServerUDP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "SGSServerUDP2", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
