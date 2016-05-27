@@ -100,7 +100,6 @@
             this.listBoxChatters.Name = "listBoxChatters";
             this.listBoxChatters.Size = new System.Drawing.Size(240, 186);
             this.listBoxChatters.TabIndex = 3;
-            this.listBoxChatters.SelectedIndexChanged += new System.EventHandler(this.listBoxChatters_SelectedIndexChanged);
             // 
             // buttonConnect
             // 

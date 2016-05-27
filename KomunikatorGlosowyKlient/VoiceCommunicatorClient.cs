@@ -294,13 +294,6 @@ namespace KomunikatorGlosowyKlient
             }
         }
 
-        //potem
-        private void listBoxChatters_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            selectedRecordDevice = AudioCapture.AvailableDevices[0];
-            this.StartRecording();
-        }
-
         void StartRecording()
         {
             started = true;
