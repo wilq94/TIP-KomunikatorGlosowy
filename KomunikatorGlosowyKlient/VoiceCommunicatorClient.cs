@@ -25,7 +25,6 @@ namespace KomunikatorGlosowyKlient
         Message,    //wysłanie wiadomości do wszystkich użytkowników korzystających z serwera
         Voice,      //wysłanie głosu do wszystkich użytkowników
         List,       //pobranie listy użytkowników korzystających z serwera
-        Null        //brak komendy
     }
 
     public partial class VoiceCommunicatorClient : Form
@@ -36,6 +35,7 @@ namespace KomunikatorGlosowyKlient
         public string strName;
         byte[] byteData = new byte[1024];
         bool connectButtonUsed = false;
+        bool nasluchuj = true;
 
         #region Audio fields from OpenTK
 
@@ -44,7 +44,7 @@ namespace KomunikatorGlosowyKlient
 
         string selectedRecordDevice = AudioCapture.AvailableDevices[0];
         int src;
-        short[] buffer = new short[512];
+        byte[] buffer = new byte[2048];
         const byte SampleToByte = 2;
         bool started = false;
         static System.Windows.Forms.Timer myTimer = new System.Windows.Forms.Timer();
@@ -63,8 +63,7 @@ namespace KomunikatorGlosowyKlient
             try
             {
                 //Using UDP sockets
-                clientSocket = new Socket(AddressFamily.InterNetwork,
-                    SocketType.Dgram, ProtocolType.Udp);
+                clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
                 //IP address of the server machine
                 IPAddress ipAddress = IPAddress.Parse(textBoxIPAddress.Text);
@@ -75,16 +74,16 @@ namespace KomunikatorGlosowyKlient
 
                 connectButtonUsed = true;
 
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.Login;
-                msgToSend.strMessage = null;
-                msgToSend.strName = strName;
-
-                byte[] byteData = msgToSend.ToByte();
-
+                byte[] bytesName = Encoding.ASCII.GetBytes(strName);
+                byte[] byteData = new byte[2+bytesName.Length];
+                byteData[0] = Convert.ToByte(1);
+                byteData[1] = Convert.ToByte(bytesName.Length);
+                for (int i = 0; i < bytesName.Length; i++) byteData[i+2] = bytesName[i];                
+                
                 //Login to the server
                 clientSocket.BeginSendTo(byteData, 0, byteData.Length,
                     SocketFlags.None, epServer, new AsyncCallback(OnSend), null);
+
                 this.Refresh();
             }
             catch (Exception ex)
@@ -110,7 +109,6 @@ namespace KomunikatorGlosowyKlient
                 buttonConnect.Enabled = false;
         }
 
-
         private void OnSend(IAsyncResult ar)
         {
             try
@@ -130,42 +128,46 @@ namespace KomunikatorGlosowyKlient
             try
             {
                 clientSocket.EndReceive(ar);
+                string tempClient;
 
-                Data msgReceived = new Data(byteData);
-
-                switch (msgReceived.cmdCommand)
+                switch (byteData[0])
                 {
-                    case Command.Login:
-                        listBoxChatters.Items.Add(msgReceived.strName);
-                        break;
-
-                    case Command.Logout:
-                        listBoxChatters.Items.Remove(msgReceived.strName);
-                        break;
-
-                    case Command.Voice:
-
-
-                    case Command.Message:
-                        break;
-
-                    case Command.List:
-                        listBoxChatters.Items.AddRange(msgReceived.strMessage.Split('*'));
-                        listBoxChatters.Items.RemoveAt(listBoxChatters.Items.Count - 1);
+                    case 1: //login
+                        tempClient = System.Text.Encoding.ASCII.GetString(byteData, 2, byteData[1]);
                         Invoke((MethodInvoker)delegate()
                         {
-                            textBox1.Text += "<<<" + strName + " dołączył do pokoju>>>\r\n";
+                            textBox1.Text += "<<<" + strName + " dołączył do pokoju>>>" + "\r\n";
+                        });
+                        listBoxChatters.Items.Add(tempClient);
+                        break;
+
+                    case 2: //logout
+                        tempClient = System.Text.Encoding.ASCII.GetString(byteData, 2, byteData[1]);
+                        Invoke((MethodInvoker)delegate()
+                        {
+                            textBox1.Text += "<<<" + strName + " wyszedł z pokoju>>>" + "\r\n";
+                        });
+                        listBoxChatters.Items.Remove(tempClient);
+                        break;
+
+                    case 3:
+                        Invoke((MethodInvoker)delegate()
+                        {
+                        byte[] temp = new byte[Convert.ToInt32(byteData[2 + Convert.ToInt32(byteData[1])])];
+                        Buffer.BlockCopy(byteData, 3+Convert.ToInt32(byteData[1]), temp, 0, Convert.ToInt32(byteData[2+Convert.ToInt32(byteData[1])]));
+                        textBox1.Text += System.Text.Encoding.ASCII.GetString(temp) + "\r\n";
                         });
                         break;
-                }
 
-                if (msgReceived.strMessage != null && msgReceived.cmdCommand != Command.List)
-                {
-                    Invoke((MethodInvoker)delegate()
-                    {
-                        textBox1.Text += msgReceived.strMessage + "\r\n";
-                    });
+                    case 4: //voice
+                        //odbiór dzwięku od innych użytkowników jest do zaimplementowania
+                        break;
 
+                    case 5: //list
+                        string tempList = System.Text.Encoding.ASCII.GetString(byteData, 2, byteData[1]);                
+                        listBoxChatters.Items.AddRange(tempList.Split('*'));
+                        listBoxChatters.Items.RemoveAt(listBoxChatters.Items.Count - 1);
+                        break;
                 }
 
                 byteData = new byte[1024];
@@ -186,21 +188,14 @@ namespace KomunikatorGlosowyKlient
         {
             CheckForIllegalCrossThreadCalls = false;
 
-            //this.Text = "KOMUNIKATOR GŁOSOWY - " + strName;
-
-            //The user has logged into the system so we now request the server to send
-            //the names of all users who are in the chat room
-
             if (!connectButtonUsed)
             {
-                strName = "AdamMalysz";
+                //Login klienta na sztywno
+                strName = "User";
                 try
                 {
-
                     //Using UDP sockets
-                    clientSocket = new Socket(AddressFamily.InterNetwork,
-                        SocketType.Dgram, ProtocolType.Udp);
-
+                    clientSocket = new Socket(AddressFamily.InterNetwork,SocketType.Dgram, ProtocolType.Udp);
                     //IP address of the server machine
                     IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
                     //Server is listening on port 1000
@@ -208,46 +203,33 @@ namespace KomunikatorGlosowyKlient
 
                     epServer = (EndPoint)ipEndPoint;
 
-                    Data loginmsgToSend = new Data();
-                    loginmsgToSend.cmdCommand = Command.Login;
-                    loginmsgToSend.strMessage = null;
-                    loginmsgToSend.strName = strName;
-
-                    byte[] loginbyteData = loginmsgToSend.ToByte();
+                    byte[] bytesName = Encoding.ASCII.GetBytes(strName);
+                    byte[] loginmsgToSend = new byte[2+bytesName.Length];
+                    loginmsgToSend[0] = Convert.ToByte(1);
+                    loginmsgToSend[1] = Convert.ToByte(bytesName.Length);
+                    for (int i = 0; i < bytesName.Length; i++) loginmsgToSend[i+2] = bytesName[i];
 
                     //Login to the server
-                    clientSocket.BeginSendTo(loginbyteData, 0, loginbyteData.Length,
+                    clientSocket.BeginSendTo(loginmsgToSend, 0, loginmsgToSend.Length,
+                        SocketFlags.None, epServer, new AsyncCallback(OnSend), null);
+
+                    //Pobierz aktualną listę
+                    byte[] listRequest = new byte[1];
+                    listRequest[0] = Convert.ToByte(5);
+                    clientSocket.BeginSendTo(listRequest, 0, listRequest.Length,
                         SocketFlags.None, epServer, new AsyncCallback(OnSend), null);
 
                     if(!started) StartRecording();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "KOMUNIKATOR GŁOSOWY",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "KOMUNIKATOR GŁOSOWY", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
             }
 
-            Data msgToSend = new Data();
-            msgToSend.cmdCommand = Command.List;
-            msgToSend.strName = strName;
-            msgToSend.strMessage = null;
-
-            byteData = msgToSend.ToByte();
-
-            clientSocket.BeginSendTo(byteData, 0, byteData.Length, SocketFlags.None, epServer,
-                new AsyncCallback(OnSend), null);
-
+            clientSocket.BeginSendTo(byteData, 0, byteData.Length, SocketFlags.None, epServer, new AsyncCallback(OnSend), null);
             byteData = new byte[1024];
-
-            //Start listening to the data asynchronously
-            clientSocket.BeginReceiveFrom(byteData,
-                                       0, byteData.Length,
-                                       SocketFlags.None,
-                                       ref epServer,
-                                       new AsyncCallback(OnReceive),
-                                       null);
+            clientSocket.BeginReceiveFrom(byteData, 0, byteData.Length, SocketFlags.None, ref epServer, new AsyncCallback(OnReceive), null);
         }
 
         private void textBoxSend_TextChanged(object sender, EventArgs e)
@@ -269,14 +251,9 @@ namespace KomunikatorGlosowyKlient
 
             try
             {
-                //Send a message to logout of the server
-                Data msgToSend = new Data();
-                msgToSend.cmdCommand = Command.Logout;
-                msgToSend.strName = strName;
-                msgToSend.strMessage = null;
-
-                byte[] b = msgToSend.ToByte();
-                clientSocket.SendTo(b, 0, b.Length, SocketFlags.None, epServer);
+                byte[] msgToSend = new byte[1];
+                msgToSend[0] = Convert.ToByte(2);
+                clientSocket.SendTo(msgToSend, 0, msgToSend.Length, SocketFlags.None, epServer);
                 clientSocket.Close();
             }
             catch (ObjectDisposedException)
@@ -299,19 +276,18 @@ namespace KomunikatorGlosowyKlient
         {
             try
             {
-                //Fill the info for the message to be send
-                Data msgToSend = new Data();
+                byte[] strNameToByte = System.Text.Encoding.ASCII.GetBytes(strName);
+                byte[] textToByte = System.Text.Encoding.ASCII.GetBytes(textBoxSend.Text);
+                byteData = new byte[3+strNameToByte.Length+textToByte.Length];
+                byteData[0] = Convert.ToByte(3);
+                byteData[1] = Convert.ToByte(strNameToByte.Length);
+                for(int i=0; i < strNameToByte.Length; i++) byteData[2+i] = strNameToByte[i];
+                byteData[2+strNameToByte.Length] = Convert.ToByte(textToByte.Length);
+                for(int i=0; i < textToByte.Length; i++) byteData[strNameToByte.Length+3+i] = textToByte[i];
 
-                msgToSend.strName = strName;
-                msgToSend.strMessage = textBoxSend.Text;
-                msgToSend.cmdCommand = Command.Message;
-
-                byte[] byteData = msgToSend.ToByte();
-
-                //Send it to the server
                 clientSocket.BeginSendTo(byteData, 0, byteData.Length, SocketFlags.None, epServer, new AsyncCallback(OnSend), null);
                 textBoxSend.Text = null;
-            }
+               }
             catch (Exception)
             {
                 MessageBox.Show("Nie można wysłać wiadomości do serwera.", "KOMUNIKATOR GŁOSOWY - " + strName, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -341,7 +317,7 @@ namespace KomunikatorGlosowyKlient
             AL.Listener(ALListenerf.Gain, (float)4);
             src = AL.GenSource();
 
-            int sampling_rate = (int)22500;
+            int sampling_rate = (int)22050;
             double buffer_length_ms = (double)50;
             int buffer_length_samples = (int)((double)buffer_length_ms * sampling_rate * 0.001 / BlittableValueType.StrideOf(buffer));
 
@@ -363,17 +339,10 @@ namespace KomunikatorGlosowyKlient
             myTimer.Tick += new EventHandler(UpdateSamples);
             myTimer.Start();
             myTimer.Interval = (int)(buffer_length_ms / 2 + 0.5);
-
-
-
-            //timer_GetSamples.Start();
-            //timer_GetSamples.Interval = (int)(buffer_length_ms / 2 + 0.5);   // Tick when half the buffer is full.
         }
 
         void StopRecording()
         {
-            //timer_GetSamples.Stop();
-
             if (audio_capture != null)
             {
                 audio_capture.Stop();
@@ -403,42 +372,40 @@ namespace KomunikatorGlosowyKlient
 
             if (available_samples * SampleToByte > buffer.Length * BlittableValueType.StrideOf(buffer))
             {
-                buffer = new short[MathHelper.NextPowerOfTwo(
+                buffer = new byte[MathHelper.NextPowerOfTwo(
                     (int)(available_samples * SampleToByte / (double)BlittableValueType.StrideOf(buffer) + 0.5))];
             }
 
             if (available_samples > 0)
             {
+                buffer = new byte[available_samples*2];
                 audio_capture.ReadSamples(buffer, available_samples);
-
+            
                 int buf = AL.GenBuffer();
-                AL.BufferData(buf, ALFormat.Mono16, buffer, (int)(available_samples * BlittableValueType.StrideOf(buffer)), audio_capture.SampleFrequency);
+                AL.BufferData(buf, ALFormat.Mono16, buffer, buffer.Length, audio_capture.SampleFrequency);
                 AL.SourceQueueBuffer(src, buf);
+                System.Console.Write(buf + " " + audio_capture.SampleFrequency + "\r\n");
 
-                /*
-                Data msgToSend = new Data();
+                byte[] strNameToByte = System.Text.Encoding.ASCII.GetBytes(strName);
+                byte[] byteData = new byte[4 + buffer.Length + strNameToByte.Length];
+                byteData[0] = 4;
+                byteData[1] = Convert.ToByte(strName.Length);
+                Buffer.BlockCopy(strNameToByte, 0, byteData, 2, strNameToByte.Length);
+                byte[] byteBufferLength = BitConverter.GetBytes((short)buffer.Length);
+                byteData[2 + strNameToByte.Length] = byteBufferLength[0];
+                byteData[3 + strNameToByte.Length] = byteBufferLength[1];
+                Buffer.BlockCopy(buffer, 0, byteData, 4 + strNameToByte.Length, buffer.Length);
 
-                //poprawic bo zle
-                byte[] bytes = new byte[buffer.Length * sizeof(short) - strName.Length - 12];
-                Buffer.BlockCopy(buffer, 0, bytes, 0, bytes.Length);
-                msgToSend.strName = strName;
-                msgToSend.strMessage = System.Text.Encoding.ASCII.GetString(bytes);
-                msgToSend.cmdCommand = Command.Voice;
-
-                byte[] byteData = msgToSend.ToByte();
-
-                //Send it to the server
-                clientSocket.BeginSendTo(byteData, 0, byteData.Length, SocketFlags.None, epServer, new AsyncCallback(OnSend), null);
-                 */
-
-                //label_SamplesConsumed.Text = "Samples consumed: " + available_samples;
-
-                if (AL.GetSourceState(src) != ALSourceState.Playing) AL.SourcePlay(src);
+                if (AL.GetSourceState(src) != ALSourceState.Playing && nasluchuj == true)
+                {
+                    AL.SourcePlay(src);
+                    System.Console.Write(buf + " " + audio_capture.SampleFrequency + "\r\n");                
+                }
             }
 
             ClearBuffers(0);
         }
-
+        
         void ClearBuffers(int input)
         {
             if (audio_context == null || audio_context == null)
@@ -460,75 +427,11 @@ namespace KomunikatorGlosowyKlient
             AL.DeleteBuffers(freedbuffers);
         }
 
-        class Data
+        private void dźwiękToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Default constructor
-            public Data()
-            {
-                this.cmdCommand = Command.Null;
-                this.strMessage = null;
-                this.strName = null;
-            }
-
-            //Converts the bytes into an object of type Data
-            public Data(byte[] data)
-            {
-                //The first four bytes are for the Command
-                this.cmdCommand = (Command)BitConverter.ToInt32(data, 0);
-
-                //The next four store the length of the name
-                int nameLen = BitConverter.ToInt32(data, 4);
-
-                //The next four store the length of the message
-                int msgLen = BitConverter.ToInt32(data, 8);
-
-                //This check makes sure that strName has been passed in the array of bytes
-                if (nameLen > 0)
-                    this.strName = Encoding.UTF8.GetString(data, 12, nameLen);
-                else
-                    this.strName = null;
-
-                //This checks for a null message field
-                if (msgLen > 0)
-                    this.strMessage = Encoding.UTF8.GetString(data, 12 + nameLen, msgLen);
-                else
-                    this.strMessage = null;
-            }
-
-            //Converts the Data structure into an array of bytes
-            public byte[] ToByte()
-            {
-                List<byte> result = new List<byte>();
-
-                //First four are for the Command
-                result.AddRange(BitConverter.GetBytes((int)cmdCommand));
-
-                //Add the length of the name
-                if (strName != null)
-                    result.AddRange(BitConverter.GetBytes(strName.Length));
-                else
-                    result.AddRange(BitConverter.GetBytes(0));
-
-                //Length of the message
-                if (strMessage != null)
-                    result.AddRange(BitConverter.GetBytes(strMessage.Length));
-                else
-                    result.AddRange(BitConverter.GetBytes(0));
-
-                //Add the name
-                if (strName != null)
-                    result.AddRange(Encoding.UTF8.GetBytes(strName));
-
-                //And, lastly we add the message text to our array of bytes
-                if (strMessage != null)
-                    result.AddRange(Encoding.UTF8.GetBytes(strMessage));
-
-                return result.ToArray();
-            }
-
-            public string strName;      //Name by which the client logs into the room
-            public string strMessage;   //Message text
-            public Command cmdCommand;  //Command type (login, logout, send message, etcetera)
+            nasluchuj = false;
+            Form2 frm = new Form2();
+            frm.Show();
         }
     }
 }

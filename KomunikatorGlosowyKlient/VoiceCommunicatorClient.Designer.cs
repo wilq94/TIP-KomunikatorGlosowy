@@ -40,6 +40,7 @@
             this.textBoxSend = new System.Windows.Forms.TextBox();
             this.buttonSend = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.dźwiękToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -63,6 +64,8 @@
             // 
             // ustawieniaToolStripMenuItem
             // 
+            this.ustawieniaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.dźwiękToolStripMenuItem});
             this.ustawieniaToolStripMenuItem.Name = "ustawieniaToolStripMenuItem";
             this.ustawieniaToolStripMenuItem.Size = new System.Drawing.Size(76, 20);
             this.ustawieniaToolStripMenuItem.Text = "Ustawienia";
@@ -148,6 +151,13 @@
             this.textBox1.Size = new System.Drawing.Size(549, 238);
             this.textBox1.TabIndex = 9;
             // 
+            // dźwiękToolStripMenuItem
+            // 
+            this.dźwiękToolStripMenuItem.Name = "dźwiękToolStripMenuItem";
+            this.dźwiękToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.dźwiękToolStripMenuItem.Text = "Dźwięk";
+            this.dźwiękToolStripMenuItem.Click += new System.EventHandler(this.dźwiękToolStripMenuItem_Click);
+            // 
             // VoiceCommunicatorClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -188,6 +198,7 @@
         private System.Windows.Forms.TextBox textBoxSend;
         private System.Windows.Forms.Button buttonSend;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.ToolStripMenuItem dźwiękToolStripMenuItem;
     }
 }
 
