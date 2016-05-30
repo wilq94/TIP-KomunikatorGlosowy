@@ -1,0 +1,7 @@
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Debug\TIPUDPServer.exe.config
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Debug\TIPUDPServer.exe
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Debug\TIPUDPServer.pdb
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Debug\TIPUDPServer.exe
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Debug\TIPUDPServer.pdb
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Debug\NAudio.dll
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Debug\NAudio.xml

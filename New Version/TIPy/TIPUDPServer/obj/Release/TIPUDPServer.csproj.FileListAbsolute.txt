@@ -1,0 +1,6 @@
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Release\TIPUDPServer.exe.config
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Release\TIPUDPServer.exe
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Release\TIPUDPServer.pdb
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Release\TIPUDPServer.csprojResolveAssemblyReference.cache
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Release\TIPUDPServer.exe
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Release\TIPUDPServer.pdb

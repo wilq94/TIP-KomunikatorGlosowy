@@ -1,0 +1,11 @@
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\bin\Debug\TIPy.exe.config
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\bin\Debug\TIPy.exe
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\bin\Debug\TIPy.pdb
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.csprojResolveAssemblyReference.cache
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.Form1.resources
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.Properties.Resources.resources
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.csproj.GenerateResource.Cache
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.exe
+c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.pdb
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPy\bin\Debug\NAudio.dll
+C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPy\bin\Debug\NAudio.xml
