@@ -4,3 +4,5 @@ C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\bin\Releas
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Release\TIPUDPServer.csprojResolveAssemblyReference.cache
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Release\TIPUDPServer.exe
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPUDPServer\obj\Release\TIPUDPServer.pdb
+C:\Users\Phil\documents\visual studio 2015\Projects\TIPy\TIPUDPServer\bin\Release\NAudio.dll
+C:\Users\Phil\documents\visual studio 2015\Projects\TIPy\TIPUDPServer\bin\Release\NAudio.xml

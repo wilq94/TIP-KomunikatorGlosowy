@@ -200,7 +200,7 @@ namespace TIPy
             sourceStream = null;
             waveOut = new WaveOut();
             sourceStream = new WaveIn();
-            sourceStream.BufferMilliseconds = 50;
+            sourceStream.BufferMilliseconds = 150;
             sourceStream.DeviceNumber = 0;
             sourceStream.WaveFormat = new WaveFormat(bitRate, bitDepth, WaveIn.GetCapabilities(deviceID).Channels);
             waveProvider = new BufferedWaveProvider(sourceStream.WaveFormat);
