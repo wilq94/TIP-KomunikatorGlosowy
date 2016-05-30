@@ -21,8 +21,8 @@ namespace TIPUDPServer
         static void Main(string[] args)
         {            
             bool sendList = false;
-            List<Client> clientList = new List<Client>();
             String serverName = "";
+            List<Client> clientList = new List<Client>();
             Console.WriteLine("Podaj nazwe serwera");
             serverName = Console.ReadLine();
             Console.WriteLine("Serwer startuje . . .");
@@ -35,8 +35,9 @@ namespace TIPUDPServer
             while (true)
             {
                 data = server.Receive(ref sender);
-                //server.SendAsync(data, data.Length, sender);
                 
+                //Jeśli serwer odbiera wiadomość z początkiem "1" user się połączył do serwera
+                //Dodaje go do listy klientów oraz wysyła wiadomość powitalną
                 if (data[0] == Convert.ToByte(1))
                 {                    
                     Client serverClient = new Client();
@@ -50,13 +51,15 @@ namespace TIPUDPServer
                     serverClient.ClientName = userNickname;
                     clientList.Add(serverClient);
                     Console.WriteLine("Połączył się " + userNickname + 
-                        " z adresu " + sender.Address + " cos: " + serverClient.endpoint.ToString() + " oraz " + sender.ToString());
+                        " z adresu " + sender.Address);
 
                     data = Encoding.ASCII.GetBytes(welcome);
                     server.SendAsync(data, data.Length, sender);
 
                     sendList = true;                     
                 }
+                //Jeśli serwer odbiera wiadomość z początkiem "2" jest to wiadomość z czatu
+                //Przekazuje ją dalej wszystkim klientów na serwerze
                 else if (data[0] == Convert.ToByte(2))
                 {
                     byte[] user = new byte[data[1]];
@@ -76,7 +79,10 @@ namespace TIPUDPServer
                     {
                         server.SendAsync(data, data.Length, svrClient.endpoint);
                     }
-                } else if (data[0] == Convert.ToByte(3))
+                //Jeśli serwer odbiera wiadomość z początkiem "3" user się rozłączył z serwera
+                //Usuwa go z listy klientów
+                }
+                else if (data[0] == Convert.ToByte(3))
                 {
                     byte[] user = new byte[data[1]];
                     for (int i = 0; i < data[1]; i++)
@@ -90,7 +96,10 @@ namespace TIPUDPServer
 
                     Console.WriteLine("Użytkownik " + userNickname +
                         " wyszedł z serwera.");
-                } else if (data[0] == Convert.ToByte(9))
+                }
+                //Jeśli serwer odbiera wiadomość z początkiem "9" jest to wiadomość audio
+                //Rozsyła ją dalej do wszystkich klientów z wyjątkiem klienta od którego przyszła ta wiadomość
+                else if (data[0] == Convert.ToByte(9))
                 {
                     foreach(Client svrClient in clientList)
                     {
@@ -100,7 +109,9 @@ namespace TIPUDPServer
                         }
                     }
                 }
-            if (sendList == true)
+                //Jeśli ktoś się łączy lub rozłącza z serwera zostaje wywołana ta "funkcja"
+                //Pobiera liste aktualnych klientów i rozsyła do wszystkich klientów na serwerze
+                if (sendList == true)
                 {
                     String clientNames = "";
                     foreach (Client svrClient in clientList)
@@ -119,7 +130,7 @@ namespace TIPUDPServer
 
                     foreach (Client svrClient in clientList)
                     {
-                    server.Send(clientNamesBytes, clientNamesBytes.Length, svrClient.endpoint);
+                        server.Send(clientNamesBytes, clientNamesBytes.Length, svrClient.endpoint);
                     }
                     sendList = false;
                 }

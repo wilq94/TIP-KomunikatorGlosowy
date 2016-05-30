@@ -24,9 +24,10 @@ namespace TIPy
         WaveIn sourceStream;
         WaveOut waveOut;
         BufferedWaveProvider waveProvider;
-        Thread thread, thread2, thread3;
+        Thread thread, thread2;
         int bitRate = 0, bitDepth = 0, deviceID = 0;
         byte[] serverData;
+
         public Form1()
         {
             InitializeComponent();
@@ -34,10 +35,10 @@ namespace TIPy
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            GetInputDevices();
+            GetInputDevices(); // Pobiera dostępne urządzenia audio
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 7;
-            InitializeButtons();
+            InitializeButtons(); // Ustawia tekst w przyciskach i polach tekstowych
         }
 
         private void connect_Click(object sender, EventArgs e)
@@ -49,108 +50,17 @@ namespace TIPy
             client = new UdpClient();
             iep = new IPEndPoint(IPAddress.Parse(textBox2.Text), 15000);
             serverResponse = new IPEndPoint(IPAddress.Any, 0);
-            //InitializeWaveIn();
             client.Connect(iep);
             SendWelcomeMessage();
             ReceiveWelcomeMessage();
             InitializeWaveIn();
             initializeWaveOut();
             thread = new Thread(new ThreadStart(listening));
+            thread.Name = "ReceivedMessagesListener";
             thread.Start();
             thread2 = new Thread(new ThreadStart(voiceStreaming));
+            thread2.Name = "VoiceStreamer";
             thread2.Start();
-            //voiceStreaming();
-            //thread3 = new Thread(new ThreadStart(voiceListening));
-            //thread3.Start();
-        }
-
-        private void initializeWaveInfo()
-        {
-            bitRate = int.Parse(comboBox2.SelectedItem.ToString());
-            bitDepth = int.Parse(comboBox1.SelectedItem.ToString());
-            deviceID = comboBox3.SelectedIndex;
-        }
-
-        private void initializeWaveOut()
-        {
-            waveProvider = null;
-            sourceStream = null;
-            waveOut = new WaveOut();
-            sourceStream = new WaveIn();
-            sourceStream.BufferMilliseconds = 50;
-            sourceStream.DeviceNumber = 0;
-            sourceStream.WaveFormat = new WaveFormat(bitRate, bitDepth, WaveIn.GetCapabilities(deviceID).Channels);
-            waveProvider = new BufferedWaveProvider(sourceStream.WaveFormat);
-        }
-
-        private void voiceListening()
-        {
-            waveOut.Init(waveProvider);
-            waveOut.Play();
-
-            while (true)
-            {
-                byte[] buffer = client.Receive(ref serverResponse);
-                if (buffer[0] == Convert.ToByte(9))
-                {
-                    waveProvider.AddSamples(buffer, 0, buffer.Length);
-                }
-            }
-        }
-
-        private void listening()
-        {
-            try {
-                waveOut.Init(waveProvider);
-                waveOut.Play();
-                while (true)
-                {
-                    serverData = client.Receive(ref serverResponse);
-                    if (serverData[0] == Convert.ToByte(2)) {
-                        ReceiveChatMessage();
-                    } else if (serverData[0] == Convert.ToByte(5))  {
-                        ReceiveUsersList();
-                    } else if (serverData[0] == Convert.ToByte(9))
-                    {
-                        waveProvider.AddSamples(serverData, 0, serverData.Length);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
-            }
-        }
-
-        delegate void SetTextCallback(string text);
-        delegate void SetUserListCallback(string text);
-
-        private void SetText(string text)
-        {
-            if (this.textBox4.InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetText);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.textBox4.Text += text + Environment.NewLine;
-            }
-        }
-
-        private void SetUserList(string text)
-        {            
-            if (this.listBox1.InvokeRequired)
-            {
-                SetUserListCallback d = new SetUserListCallback(SetUserList);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                listBox1.Items.Clear();
-                listBox1.Items.AddRange(text.Split('*'));
-                listBox1.Items.RemoveAt(listBox1.Items.Count - 1);
-            }
         }
 
         private void sentmsg_Click(object sender, EventArgs e)
@@ -158,9 +68,9 @@ namespace TIPy
             byte[] data = new byte[3 + textBox3.Text.Length + textBox1.Text.Length];
             byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
             byte[] message = Encoding.ASCII.GetBytes(textBox3.Text);
-            data[0] = Convert.ToByte(2);
-            data[1] = Convert.ToByte(textBox1.Text.Length);
-            data[2] = Convert.ToByte(textBox3.Text.Length);
+            data[0] = Convert.ToByte(2); //Wiadomości z czatu mają na początku tablicy wartość 2
+            data[1] = Convert.ToByte(textBox1.Text.Length); //2 pole tablicy to długość nazwy usera
+            data[2] = Convert.ToByte(textBox3.Text.Length); //3 pole tablicy to długość wiadomości
             for (int i = 0; i < userNickname.Length; i++)
             {
                 data[i + 3] = userNickname[i];
@@ -171,14 +81,13 @@ namespace TIPy
             }
 
             client.Send(data, data.Length);
-            textBox3.Text = "Wiadomość wysłana";
         }
 
         private void disconnect_Click(object sender, EventArgs e)
         {
             byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
             byte[] data = new byte[2 + userNickname.Length];
-            data[0] = Convert.ToByte(3);
+            data[0] = Convert.ToByte(3); //Wiadomość do serwera o rozłączeniu, ma na początku tablicy wartość 3
             data[1] = Convert.ToByte(userNickname.Length);
             for (int i = 0; i < userNickname.Length; i++)
             {
@@ -229,7 +138,7 @@ namespace TIPy
         {
             byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
             byte[] data = new byte[2 + userNickname.Length];
-            data[0] = Convert.ToByte(1);
+            data[0] = Convert.ToByte(1); //Wiadomość o dołączeniu do serwera ma na początku tablicy wartość 1
             data[1] = Convert.ToByte(userNickname.Length);
             for (int i = 0; i < userNickname.Length; i++)
             {
@@ -269,14 +178,99 @@ namespace TIPy
             this.SetUserList(usersList);
         }
 
-        private void voiceStreaming()
-        {
-            //InitializeWaveIn();
+        private void voiceStreaming() {   
             waveIn.DataAvailable += sourcestream_DataAvailable;
             waveIn.StartRecording();
             while (true)
             {
 
+            }
+        }
+
+        private void initializeWaveInfo()
+        {
+            bitRate = int.Parse(comboBox2.SelectedItem.ToString());
+            bitDepth = int.Parse(comboBox1.SelectedItem.ToString());
+            deviceID = comboBox3.SelectedIndex;
+        }
+
+        private void initializeWaveOut()
+        {
+            waveProvider = null;
+            sourceStream = null;
+            waveOut = new WaveOut();
+            sourceStream = new WaveIn();
+            sourceStream.BufferMilliseconds = 50;
+            sourceStream.DeviceNumber = 0;
+            sourceStream.WaveFormat = new WaveFormat(bitRate, bitDepth, WaveIn.GetCapabilities(deviceID).Channels);
+            waveProvider = new BufferedWaveProvider(sourceStream.WaveFormat);
+        }
+
+        private void listening()
+        {
+            try
+            {
+                waveOut.Init(waveProvider);
+                waveOut.Play(); //Odtwarza odebrane audio
+                while (true)
+                {
+                    serverData = client.Receive(ref serverResponse);
+                    //Podział odebranych wiadomości ze wzglęgu na zawartość pierwszego bajta w tablicy
+                    //Jesli 2 to jest to wiadomość z czatu
+                    //Jeśli 5 to jest to lista userów
+                    //Jeśli 9 to jest to wiadomość audio
+                    if (serverData[0] == Convert.ToByte(2))
+                    {
+                        ReceiveChatMessage();
+                    }
+                    else if (serverData[0] == Convert.ToByte(5))
+                    {
+                        ReceiveUsersList();
+                    }
+                    else if (serverData[0] == Convert.ToByte(9))
+                    {
+                        waveProvider.AddSamples(serverData, 0, serverData.Length);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.ToString());
+            }
+        }
+
+        delegate void SetTextCallback(string text);
+        delegate void SetUserListCallback(string text);
+
+        //Ta metoda dodaje nowy tekst na czacie
+        //Trzeba taką metodą bo dodaje innym wątkiem niż ten, który stworzył textboxa
+        private void SetText(string text)
+        {
+            if (this.textBox4.InvokeRequired)
+            {
+                SetTextCallback d = new SetTextCallback(SetText);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                this.textBox4.Text += text + Environment.NewLine;
+            }
+        }
+
+        //Ta metoda aktualizuje liste userów
+        //Trzeba taką metodą bo aktualizuje innym wątkiem niż ten, który stworzył listboxa
+        private void SetUserList(string text)
+        {
+            if (this.listBox1.InvokeRequired)
+            {
+                SetUserListCallback d = new SetUserListCallback(SetUserList);
+                this.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                listBox1.Items.Clear();
+                listBox1.Items.AddRange(text.Split('*'));
+                listBox1.Items.RemoveAt(listBox1.Items.Count - 1);
             }
         }
 
@@ -292,11 +286,6 @@ namespace TIPy
             {
                 Debug.WriteLine(ex.ToString());
             }
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }
