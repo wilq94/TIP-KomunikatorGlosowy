@@ -24,8 +24,10 @@ namespace TIPUDPServer
             bool sendList = false;
             String serverName = "";
             int serverPort = 15000;
+            int tempUserName = 2;
             List<Client> clientList = new List<Client>();
             List<String> channelList = new List<String>();
+            List<String> bannedList = new List<String>();
             channelList.Add("Kanal Powitalny");
             do {
                 Console.WriteLine("Podaj nazwe serwera");
@@ -58,15 +60,17 @@ namespace TIPUDPServer
                         Console.WriteLine("/remove<nazwa> - usuwa podany kanał");
                         Console.WriteLine("/kick<nazwa><powód> - wyrzuca z serwera podanego użytkownika");
                         Console.WriteLine("/ban<nazwa><powód> - banuje pernamentnie podanego uzytkownika z serwera");
+                        Console.WriteLine("/banned - pokazuje liste zbanowanych IP");
+                        Console.WriteLine("/unban<IPEndPoint> - odbanowuje podane IP");
                         Console.WriteLine("/users - pokazuje aktualnie podłączonych do serwera użytkowników");
                         Console.WriteLine("/channels - pokazuje liste utworzonych kanałów");
                         Console.WriteLine("/close - wyłącza serwer");                     
                     } else if(commandWords[0] == "/change") {
                         serverName = commandWords[1];
-                        Console.WriteLine("Nazwa serwera zmieniona na " + commandWords[1]);
+                        Console.WriteLine("Nazwa serwera zmieniona na " + serverName);
                     } else if(commandWords[0] == "/changeDefault") {
                         channelList[0] = commandWords[1];
-                        Console.WriteLine("Zmieniono nazwę kanału domyślnego na " + commandWords[1]);
+                        Console.WriteLine("Zmieniono nazwę kanału domyślnego na " + channelList[0]);
                     } else if(command == "/users") {
                         if (clientList.Count == 0)
                         {
@@ -84,6 +88,17 @@ namespace TIPUDPServer
                         {
                             Console.WriteLine(channel.ToString());
                         }
+                    } else if(command == "/banned") {
+                        if (bannedList.Count == 0)
+                        {
+                            Console.WriteLine("Nie ma zbanowanych użytkowników");
+                        } else {
+                            int i = 1;
+                            foreach (String banned in bannedList)
+                            {
+                                Console.WriteLine(i + ". " + banned.ToString());
+                            }
+                        }
                     } else if(commandWords[0] == "/create") {
                         channelList.Add(commandWords[1]);
                     } else if(commandWords[0] == "/remove") {
@@ -99,11 +114,11 @@ namespace TIPUDPServer
                                 //rozłącz kliena
                         }
                     } else if(commandWords[0] == "/ban") {
-                        foreach (Client svrClient in clientList)
-                        {
-                            if (svrClient.ClientName == commandWords[1]) { }
-                            //rozłącz kliena
-                        }
+                        bannedList.Add(clientList.Find(Client => Client.ClientName == commandWords[1]).endpoint.ToString());
+                        //rozłącz kliena
+                    }
+                    else if(commandWords[0] == "/unban") {
+                        bannedList.Remove(commandWords[1]);
                     } else if(command == "/close")
                     {
                         server.Close();
@@ -123,25 +138,33 @@ namespace TIPUDPServer
                 //Dodaje go do listy klientów oraz wysyła wiadomość powitalną
                 if (data[0] == Convert.ToByte(1))
                 {
-                    String welcome = "Witamy na serwerze " + serverName;
-                    Client serverClient = new Client();
-                    serverClient.endpoint = sender;
-                    byte[] user = new byte[data[1]];
-                    for(int i = 0; i < data[1]; i++)
-                    {
-                        user[i] = data[i + 2];
-                    }
-                    String userNickname = Encoding.ASCII.GetString(user);
-                    serverClient.ClientName = userNickname;
-                    serverClient.Channel = channelList[0];
-                    clientList.Add(serverClient);
-                    Console.WriteLine("Połączył się " + userNickname + 
-                        " z adresu " + sender.Address);
+                    if (!bannedList.Contains(sender.ToString())) {
+                        String welcome = "Witamy na serwerze " + serverName;
+                        Client serverClient = new Client();
+                        serverClient.endpoint = sender;
+                        byte[] user = new byte[data[1]];
+                        for (int i = 0; i < data[1]; i++)
+                        {
+                            user[i] = data[i + 2];
+                        }
+                        String userNickname = Encoding.ASCII.GetString(user);
+                        do {
+                            if (clientList.Any(Client => Client.ClientName == userNickname)) {
+                                userNickname += "(" + tempUserName + ")";
+                                tempUserName++;
+                            }
+                        } while (clientList.Any(Client => Client.ClientName == userNickname));
+                        serverClient.ClientName = userNickname;
+                        serverClient.Channel = channelList[0];
+                        clientList.Add(serverClient);
+                        Console.WriteLine("Połączył się " + userNickname +
+                            " z adresu " + sender.Address);
 
-                    data = Encoding.ASCII.GetBytes(welcome);
-                    server.SendAsync(data, data.Length, sender);
+                        data = Encoding.ASCII.GetBytes(welcome);
+                        server.SendAsync(data, data.Length, sender);
 
-                    sendList = true;                     
+                        sendList = true;
+                    }                  
                 }
                 //Jeśli serwer odbiera wiadomość z początkiem "2" jest to wiadomość z czatu
                 //Przekazuje ją dalej wszystkim klientów na serwerze
