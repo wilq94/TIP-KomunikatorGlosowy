@@ -16,21 +16,104 @@ namespace TIPUDPServer
         {
             public IPEndPoint endpoint;   
             public string ClientName;
+            public string Channel;
         }
 
         static void Main(string[] args)
         {            
             bool sendList = false;
             String serverName = "";
+            int serverPort = 15000;
             List<Client> clientList = new List<Client>();
-            Console.WriteLine("Podaj nazwe serwera");
-            serverName = Console.ReadLine();
-            Console.WriteLine("Serwer startuje . . .");
-            UdpClient server = new UdpClient(15000);
+            List<String> channelList = new List<String>();
+            channelList.Add("Kanal Powitalny");
+            do {
+                Console.WriteLine("Podaj nazwe serwera");
+                serverName = Console.ReadLine();
+                if(serverName == "")
+                    Console.WriteLine("Nazwa serwera nie może być pusta!");
+            } while (serverName == "");
+            do {
+                Console.WriteLine("Podaj port serwera (Domyslnie 15000)");
+                serverPort = Convert.ToInt32(Console.ReadLine());
+            } while (serverPort < 1);
+            Console.WriteLine("Serwer \"" + serverName + "\" startuje . . .");
+            UdpClient server = new UdpClient(serverPort);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-            Console.WriteLine("Serwer wystartował . . .");
-            String welcome = "Witamy na serwerze " + serverName;
+            Console.WriteLine("Serwer \"" + serverName + "\" wystartował . . .");
             byte[] data = new byte[1024];
+
+            new Thread(() =>
+            {
+                Console.WriteLine("Wpisz /help, aby uzyskać listę komend");
+                while(true)
+                {
+                    String command = Console.ReadLine();
+                    String[] commandWords = command.Split('<','>');
+                    if(command == "/help")
+                    {
+                        Console.WriteLine("/change<nazwa> - zmienia nazwę serwera");
+                        Console.WriteLine("/changeDefault<nazwa> - zmienia nazwę kanału domyślnego");
+                        Console.WriteLine("/create<nazwa> - tworzy nowy kanał");
+                        Console.WriteLine("/remove<nazwa> - usuwa podany kanał");
+                        Console.WriteLine("/kick<nazwa><powód> - wyrzuca z serwera podanego użytkownika");
+                        Console.WriteLine("/ban<nazwa><powód> - banuje pernamentnie podanego uzytkownika z serwera");
+                        Console.WriteLine("/users - pokazuje aktualnie podłączonych do serwera użytkowników");
+                        Console.WriteLine("/channels - pokazuje liste utworzonych kanałów");
+                        Console.WriteLine("/close - wyłącza serwer");                     
+                    } else if(commandWords[0] == "/change") {
+                        serverName = commandWords[1];
+                        Console.WriteLine("Nazwa serwera zmieniona na " + commandWords[1]);
+                    } else if(commandWords[0] == "/changeDefault") {
+                        channelList[0] = commandWords[1];
+                        Console.WriteLine("Zmieniono nazwę kanału domyślnego na " + commandWords[1]);
+                    } else if(command == "/users") {
+                        if (clientList.Count == 0)
+                        {
+                            Console.WriteLine("Serwer jest pusty");
+                        } else {
+                            int i = 1;
+                            foreach (Client svrClient in clientList)
+                            {
+                                Console.WriteLine(i + ". " + svrClient.ClientName + " - " + svrClient.endpoint);
+                                i++;
+                            }
+                        }
+                    } else if(command == "/channels") {
+                        foreach (String channel in channelList)
+                        {
+                            Console.WriteLine(channel.ToString());
+                        }
+                    } else if(commandWords[0] == "/create") {
+                        channelList.Add(commandWords[1]);
+                    } else if(commandWords[0] == "/remove") {
+                        if (commandWords[1] == channelList[0]) {
+                            Console.WriteLine("Nie można usunąć domyślnego kanału");
+                        } else {
+                            channelList.Remove(commandWords[1]);
+                        }
+                    } else if(commandWords[0] == "/kick") {
+                        foreach(Client svrClient in clientList)
+                        {
+                            if(svrClient.ClientName == commandWords[1]) { }
+                                //rozłącz kliena
+                        }
+                    } else if(commandWords[0] == "/ban") {
+                        foreach (Client svrClient in clientList)
+                        {
+                            if (svrClient.ClientName == commandWords[1]) { }
+                            //rozłącz kliena
+                        }
+                    } else if(command == "/close")
+                    {
+                        server.Close();
+                        Console.WriteLine("Serwer wyłączony");
+                        Environment.Exit(0);
+                    } else {
+                        Console.WriteLine("Niepoprawna komenda");
+                    }
+                }
+            }).Start();
             
             while (true)
             {
@@ -39,7 +122,8 @@ namespace TIPUDPServer
                 //Jeśli serwer odbiera wiadomość z początkiem "1" user się połączył do serwera
                 //Dodaje go do listy klientów oraz wysyła wiadomość powitalną
                 if (data[0] == Convert.ToByte(1))
-                {                    
+                {
+                    String welcome = "Witamy na serwerze " + serverName;
                     Client serverClient = new Client();
                     serverClient.endpoint = sender;
                     byte[] user = new byte[data[1]];
@@ -49,6 +133,7 @@ namespace TIPUDPServer
                     }
                     String userNickname = Encoding.ASCII.GetString(user);
                     serverClient.ClientName = userNickname;
+                    serverClient.Channel = channelList[0];
                     clientList.Add(serverClient);
                     Console.WriteLine("Połączył się " + userNickname + 
                         " z adresu " + sender.Address);
@@ -136,8 +221,6 @@ namespace TIPUDPServer
                 }
                 
             }
-            Console.ReadLine();
-            Console.WriteLine("Serwer zatrzymany . . .");
     }
 
         
