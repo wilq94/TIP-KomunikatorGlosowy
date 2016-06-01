@@ -61,7 +61,7 @@ namespace TIPUDPServer
                         Console.WriteLine("/kick<nazwa><powód> - wyrzuca z serwera podanego użytkownika");
                         Console.WriteLine("/ban<nazwa><powód> - banuje pernamentnie podanego uzytkownika z serwera");
                         Console.WriteLine("/banned - pokazuje liste zbanowanych IP");
-                        Console.WriteLine("/unban<IPEndPoint> - odbanowuje podane IP");
+                        Console.WriteLine("/unban<IP> - odbanowuje podane IP");
                         Console.WriteLine("/users - pokazuje aktualnie podłączonych do serwera użytkowników");
                         Console.WriteLine("/channels - pokazuje liste utworzonych kanałów");
                         Console.WriteLine("/close - wyłącza serwer");                     

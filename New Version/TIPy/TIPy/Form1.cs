@@ -164,6 +164,7 @@ namespace TIPy
             sentmsg_btn.Text = "WYŚLIJ";
             textBox1.Text = "Nickname...";
             textBox2.Text = "127.0.0.1";
+            textBox5.Text = "15000";
             textBox3.Text = "Twoja wiadomość...";
             textBox4.ReadOnly = true;
         }
@@ -246,7 +247,7 @@ namespace TIPy
             {
                 initializeWaveInfo();
                 client = new UdpClient();
-                iep = new IPEndPoint(IPAddress.Parse(textBox2.Text), 15000);
+                iep = new IPEndPoint(IPAddress.Parse(textBox2.Text), Convert.ToInt32(textBox5.Text));
                 serverResponse = new IPEndPoint(IPAddress.Any, 0);
                 client.Connect(iep);
                 SendWelcomeMessage();
@@ -399,6 +400,11 @@ namespace TIPy
                 listBox1.Items.AddRange(text.Split('*'));
                 listBox1.Items.RemoveAt(listBox1.Items.Count - 1);
             }
+        }
+
+        private void połaczToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void sourcestream_DataAvailable(object notUsed, WaveInEventArgs e)

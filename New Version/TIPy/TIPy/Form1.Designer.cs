@@ -31,11 +31,12 @@
             this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.połaczeniaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.połaczToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.rozłaczToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ulubioneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ustawieniaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.opcjeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pomocToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.instrukcjaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.kontaktToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -56,9 +57,8 @@
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
-            this.opcjeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.instrukcjaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.kontaktToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.dataGridView7 = new System.Windows.Forms.DataGridView();
+            this.textBox5 = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -66,6 +66,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView6)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView5)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView7)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -85,29 +86,11 @@
             // 
             this.połaczeniaToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(10)))));
             this.połaczeniaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.połaczToolStripMenuItem,
-            this.rozłaczToolStripMenuItem,
             this.ulubioneToolStripMenuItem});
             this.połaczeniaToolStripMenuItem.ForeColor = System.Drawing.Color.Snow;
             this.połaczeniaToolStripMenuItem.Name = "połaczeniaToolStripMenuItem";
             this.połaczeniaToolStripMenuItem.Size = new System.Drawing.Size(75, 20);
             this.połaczeniaToolStripMenuItem.Text = "Połączenia";
-            // 
-            // połaczToolStripMenuItem
-            // 
-            this.połaczToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
-            this.połaczToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.połaczToolStripMenuItem.Name = "połaczToolStripMenuItem";
-            this.połaczToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
-            this.połaczToolStripMenuItem.Text = "Połącz...";
-            // 
-            // rozłaczToolStripMenuItem
-            // 
-            this.rozłaczToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
-            this.rozłaczToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.rozłaczToolStripMenuItem.Name = "rozłaczToolStripMenuItem";
-            this.rozłaczToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
-            this.rozłaczToolStripMenuItem.Text = "Rozłącz...";
             // 
             // ulubioneToolStripMenuItem
             // 
@@ -115,7 +98,7 @@
             this.ulubioneToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.ulubioneToolStripMenuItem.Name = "ulubioneToolStripMenuItem";
             this.ulubioneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.ulubioneToolStripMenuItem.Text = "Ulubione...";
+            this.ulubioneToolStripMenuItem.Text = "Ulubione";
             // 
             // ustawieniaToolStripMenuItem
             // 
@@ -126,6 +109,14 @@
             this.ustawieniaToolStripMenuItem.Size = new System.Drawing.Size(76, 20);
             this.ustawieniaToolStripMenuItem.Text = "Ustawienia";
             // 
+            // opcjeToolStripMenuItem
+            // 
+            this.opcjeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.opcjeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.opcjeToolStripMenuItem.Name = "opcjeToolStripMenuItem";
+            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+            this.opcjeToolStripMenuItem.Text = "Opcje";
+            // 
             // pomocToolStripMenuItem
             // 
             this.pomocToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -135,6 +126,22 @@
             this.pomocToolStripMenuItem.Name = "pomocToolStripMenuItem";
             this.pomocToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.pomocToolStripMenuItem.Text = "Pomoc";
+            // 
+            // instrukcjaToolStripMenuItem
+            // 
+            this.instrukcjaToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.instrukcjaToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.instrukcjaToolStripMenuItem.Name = "instrukcjaToolStripMenuItem";
+            this.instrukcjaToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.instrukcjaToolStripMenuItem.Text = "Instrukcja";
+            // 
+            // kontaktToolStripMenuItem
+            // 
+            this.kontaktToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.kontaktToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.kontaktToolStripMenuItem.Name = "kontaktToolStripMenuItem";
+            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.kontaktToolStripMenuItem.Text = "Kontakt";
             // 
             // contextMenuStrip1
             // 
@@ -176,7 +183,7 @@
             this.dataGridView3.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView3.Location = new System.Drawing.Point(0, 83);
             this.dataGridView3.Name = "dataGridView3";
-            this.dataGridView3.Size = new System.Drawing.Size(290, 34);
+            this.dataGridView3.Size = new System.Drawing.Size(155, 34);
             this.dataGridView3.TabIndex = 10;
             // 
             // textBox2
@@ -186,7 +193,7 @@
             this.textBox2.ForeColor = System.Drawing.Color.Gray;
             this.textBox2.Location = new System.Drawing.Point(15, 93);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(188, 13);
+            this.textBox2.Size = new System.Drawing.Size(124, 13);
             this.textBox2.TabIndex = 11;
             // 
             // connect_btn
@@ -348,29 +355,24 @@
             this.comboBox2.Size = new System.Drawing.Size(185, 21);
             this.comboBox2.TabIndex = 28;
             // 
-            // opcjeToolStripMenuItem
+            // dataGridView7
             // 
-            this.opcjeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
-            this.opcjeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.opcjeToolStripMenuItem.Name = "opcjeToolStripMenuItem";
-            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.opcjeToolStripMenuItem.Text = "Opcje";
+            this.dataGridView7.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(11)))), ((int)(((byte)(11)))), ((int)(((byte)(11)))));
+            this.dataGridView7.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView7.Location = new System.Drawing.Point(145, 83);
+            this.dataGridView7.Name = "dataGridView7";
+            this.dataGridView7.Size = new System.Drawing.Size(68, 34);
+            this.dataGridView7.TabIndex = 29;
             // 
-            // instrukcjaToolStripMenuItem
+            // textBox5
             // 
-            this.instrukcjaToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
-            this.instrukcjaToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.instrukcjaToolStripMenuItem.Name = "instrukcjaToolStripMenuItem";
-            this.instrukcjaToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.instrukcjaToolStripMenuItem.Text = "Instrukcja";
-            // 
-            // kontaktToolStripMenuItem
-            // 
-            this.kontaktToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
-            this.kontaktToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.kontaktToolStripMenuItem.Name = "kontaktToolStripMenuItem";
-            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.kontaktToolStripMenuItem.Text = "Kontakt";
+            this.textBox5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(11)))), ((int)(((byte)(11)))), ((int)(((byte)(11)))));
+            this.textBox5.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.textBox5.ForeColor = System.Drawing.Color.Gray;
+            this.textBox5.Location = new System.Drawing.Point(155, 93);
+            this.textBox5.Name = "textBox5";
+            this.textBox5.Size = new System.Drawing.Size(48, 13);
+            this.textBox5.TabIndex = 30;
             // 
             // Form1
             // 
@@ -378,6 +380,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(18)))), ((int)(((byte)(18)))), ((int)(((byte)(18)))));
             this.ClientSize = new System.Drawing.Size(891, 472);
+            this.Controls.Add(this.textBox5);
+            this.Controls.Add(this.dataGridView7);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.comboBox3);
@@ -409,6 +413,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView6)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView5)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView7)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -440,12 +445,12 @@
         private System.Windows.Forms.ComboBox comboBox3;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ComboBox comboBox2;
-        private System.Windows.Forms.ToolStripMenuItem połaczToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem rozłaczToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ulubioneToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem opcjeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem instrukcjaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem kontaktToolStripMenuItem;
+        private System.Windows.Forms.DataGridView dataGridView7;
+        private System.Windows.Forms.TextBox textBox5;
     }
 }
 
