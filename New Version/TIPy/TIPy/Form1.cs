@@ -98,9 +98,15 @@ namespace TIPy
 
         private void disconnect_Click(object sender, EventArgs e)
         {
+            disconnect();   
+        }
+
+        private void disconnect()
+        {
             if (isConnected == true)
             {
-                try {
+                try
+                {
                     byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
                     byte[] data = new byte[2 + userNickname.Length];
                     data[0] = Convert.ToByte(3); //Wiadomość do serwera o rozłączeniu, ma na początku tablicy wartość 3
@@ -110,19 +116,24 @@ namespace TIPy
                         data[i + 2] = userNickname[i];
                     }
                     client.Send(data, data.Length);
-                    thread.Abort();
                     client.Close();
+                    thread.Suspend();
+                    thread2.Suspend();
+                    sourceStream.Dispose();
+                    waveIn.Dispose();
+                    waveOut.Dispose();
+                    waveProvider.ClearBuffer();
                     listBox1.Items.Clear();
                     textBox1.Enabled = true;
                     connect_btn.Enabled = true;
                     dataGridView2.BackgroundColor = Color.Red;
                     isConnected = false;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     var result = MessageBox.Show("Wystąpił błąd", "Błąd",
                         MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
-                    if(result == DialogResult.OK)
+                    if (result == DialogResult.OK)
                     {
                         MessageBox.Show(ex.ToString(), "Błąd",
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -178,11 +189,19 @@ namespace TIPy
             client.Send(data, data.Length);
         }
 
-        private void ReceiveWelcomeMessage()
+        private int ReceiveWelcomeMessage()
         {
             byte[] serverData = client.Receive(ref serverResponse);
-            string welcomeMessage = Encoding.ASCII.GetString(serverData);
-            textBox4.Text += welcomeMessage + Environment.NewLine;
+            if (serverData[0] == Convert.ToByte(3))
+            {
+                textBox4.Text += "Nie można się połączyć z serwerem. Zostałeś zbanowany na tym serwerze." + Environment.NewLine;
+                return 5;
+            }
+            else {
+                string welcomeMessage = Encoding.ASCII.GetString(serverData);
+                textBox4.Text += welcomeMessage + Environment.NewLine;
+                return 4;
+            }
         }
 
         private void ReceiveChatMessage()
@@ -209,12 +228,15 @@ namespace TIPy
             this.SetUserList(usersList);
         }
 
-        private void voiceStreaming() {   
-            waveIn.DataAvailable += sourcestream_DataAvailable;
-            waveIn.StartRecording();
-            while (true)
+        private void voiceStreaming() {
+            if (isConnected == true)
             {
+                waveIn.DataAvailable += sourcestream_DataAvailable;
+                waveIn.StartRecording();
+                while (true)
+                {
 
+                }
             }
         }
 
@@ -228,27 +250,32 @@ namespace TIPy
                 serverResponse = new IPEndPoint(IPAddress.Any, 0);
                 client.Connect(iep);
                 SendWelcomeMessage();
-                ReceiveWelcomeMessage();
-                isConnected = true;
-                if (isConnected == true)
+                if (ReceiveWelcomeMessage() == 5)
                 {
-                    textBox1.Enabled = false;
-                    connect_btn.Enabled = false;
-                    dataGridView2.BackgroundColor = Color.Green;
-                    InitializeWaveIn();
-                    initializeWaveOut();
-                    thread = new Thread(new ThreadStart(listening));
-                    thread.Name = "ReceivedMessagesListener";
-                    thread.Start();
-                    thread2 = new Thread(new ThreadStart(voiceStreaming));
-                    thread2.Name = "VoiceStreamer";
-                    thread2.Start();
+                    client.Close();
+                }
+                else {
+                    isConnected = true;
+                    if (isConnected == true)
+                    {
+                        textBox1.Enabled = false;
+                        connect_btn.Enabled = false;
+                        dataGridView2.BackgroundColor = Color.Green;
+                        InitializeWaveIn();
+                        initializeWaveOut();
+                        thread = new Thread(new ThreadStart(listening));
+                        thread.Name = "ReceivedMessagesListener";
+                        thread.Start();
+                        thread2 = new Thread(new ThreadStart(voiceStreaming));
+                        thread2.Name = "VoiceStreamer";
+                        thread2.Start();
+                    }
                 }
             }
             catch (Exception ex)
             {
                 isConnected = false;
-                var result = MessageBox.Show("Nie można się połączyć z serwerem", "Błąd",
+                var result = MessageBox.Show(ex.ToString(), "Błąd",
                     MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
                 if (result == DialogResult.Retry)
                 {
@@ -278,39 +305,69 @@ namespace TIPy
 
         private void listening()
         {
-            try
+            if (isConnected == true)
             {
-                waveOut.Init(waveProvider);
-                waveOut.Play(); //Odtwarza odebrane audio
-                while (true)
+                try
                 {
-                    serverData = client.Receive(ref serverResponse);
-                    //Podział odebranych wiadomości ze wzglęgu na zawartość pierwszego bajta w tablicy
-                    //Jesli 2 to jest to wiadomość z czatu
-                    //Jeśli 5 to jest to lista userów
-                    //Jeśli 9 to jest to wiadomość audio
-                    if (serverData[0] == Convert.ToByte(2))
+                    waveOut.Init(waveProvider);
+                    waveOut.Play(); //Odtwarza odebrane audio
+                    while (true)
                     {
-                        ReceiveChatMessage();
-                    }
-                    else if (serverData[0] == Convert.ToByte(5))
-                    {
-                        ReceiveUsersList();
-                    }
-                    else if (serverData[0] == Convert.ToByte(9))
-                    {
-                        waveProvider.AddSamples(serverData, 0, serverData.Length);
+                        serverData = client.Receive(ref serverResponse);
+                        //Podział odebranych wiadomości ze wzglęgu na zawartość pierwszego bajta w tablicy
+                        //Jesli 2 to jest to wiadomość z czatu
+                        //Jeśli 5 to jest to lista userów
+                        //Jeśli 9 to jest to wiadomość audio
+                        if (serverData[0] == Convert.ToByte(2))
+                        {
+                            ReceiveChatMessage();
+                        }
+                        else if (serverData[0] == Convert.ToByte(5))
+                        {
+                            ReceiveUsersList();
+                        }
+                        else if (serverData[0] == Convert.ToByte(6))
+                        {
+                            String reason = Encoding.ASCII.GetString(serverData, 1, (serverData.Length - 1));
+                            String kickMsg = "Zostałeś wyrzucony z serwera. Powód: " + reason;
+                            SetText(kickMsg);
+                            DisconnectKick();
+                        }
+                        else if (serverData[0] == Convert.ToByte(7))
+                        {
+                            String reason = Encoding.ASCII.GetString(serverData, 1, (serverData.Length - 1));
+                            String banMsg = "Zostałeś zbanowany na serwerze. Powód: " + reason;
+                            SetText(banMsg);
+                            DisconnectKick();
+                        }
+                        else if (serverData[0] == Convert.ToByte(9))
+                        {
+                            waveProvider.AddSamples(serverData, 0, serverData.Length);
+                        }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.ToString());
+                catch (Exception e)
+                {
+                    //MessageBox.Show(e.ToString());
+                }
             }
         }
 
         delegate void SetTextCallback(string text);
         delegate void SetUserListCallback(string text);
+        delegate void DisconnectKickCallback();
+
+        private void DisconnectKick()
+        {
+            if(this.InvokeRequired)
+            {
+                DisconnectKickCallback d = new DisconnectKickCallback(DisconnectKick);
+                this.Invoke(d, new object[] { });
+            } else
+            {
+                disconnect();
+            }
+        }
 
         //Ta metoda dodaje nowy tekst na czacie
         //Trzeba taką metodą bo dodaje innym wątkiem niż ten, który stworzył textboxa
@@ -338,7 +395,7 @@ namespace TIPy
             }
             else
             {
-                listBox1.Items.Clear();
+                listBox1.Items.Clear(); 
                 listBox1.Items.AddRange(text.Split('*'));
                 listBox1.Items.RemoveAt(listBox1.Items.Count - 1);
             }

@@ -108,14 +108,33 @@ namespace TIPUDPServer
                             channelList.Remove(commandWords[1]);
                         }
                     } else if(commandWords[0] == "/kick") {
-                        foreach(Client svrClient in clientList)
+                        if (clientList.Count != 0 && clientList.Any(Client => Client.ClientName == commandWords[1]))
                         {
-                            if(svrClient.ClientName == commandWords[1]) { }
-                                //rozłącz kliena
+                            byte[] kickMsg = new byte[commandWords[3].Length + 1];
+                            byte[] tempKickMsg = new byte[commandWords[3].Length];
+                            tempKickMsg = Encoding.ASCII.GetBytes(commandWords[3]);
+                            kickMsg[0] = Convert.ToByte(6);
+                            for (int i = 0; i < tempKickMsg.Length; i++)
+                            {
+                                kickMsg[i + 1] = tempKickMsg[i];
+                            }
+                            server.SendAsync(kickMsg, kickMsg.Length, clientList.Find(Client => Client.ClientName == commandWords[1]).endpoint);
+                        } else { Console.WriteLine("Nie ma takiego użytkownika!"); }
+                    } else if(commandWords[0] == "/ban") {                        
+                        if (clientList.Count != 0 && clientList.Any(Client => Client.ClientName == commandWords[1]))
+                        {
+                            bannedList.Add(clientList.Find(Client => Client.ClientName == commandWords[1]).endpoint.Address.ToString());
+                            byte[] banMsg = new byte[commandWords[3].Length + 1];
+                            byte[] tempBanMsg = new byte[commandWords[3].Length];
+                            tempBanMsg = Encoding.ASCII.GetBytes(commandWords[3]);
+                            banMsg[0] = Convert.ToByte(7);
+                            for (int i = 0; i < tempBanMsg.Length; i++)
+                            {
+                                banMsg[i + 1] = tempBanMsg[i];
+                            }
+                            server.SendAsync(banMsg, banMsg.Length, clientList.Find(Client => Client.ClientName == commandWords[1]).endpoint);
                         }
-                    } else if(commandWords[0] == "/ban") {
-                        bannedList.Add(clientList.Find(Client => Client.ClientName == commandWords[1]).endpoint.ToString());
-                        //rozłącz kliena
+                        else { Console.WriteLine("Nie ma takiego użytkownika!"); }
                     }
                     else if(commandWords[0] == "/unban") {
                         bannedList.Remove(commandWords[1]);
@@ -132,115 +151,124 @@ namespace TIPUDPServer
             
             while (true)
             {
-                data = server.Receive(ref sender);
-                
-                //Jeśli serwer odbiera wiadomość z początkiem "1" user się połączył do serwera
-                //Dodaje go do listy klientów oraz wysyła wiadomość powitalną
-                if (data[0] == Convert.ToByte(1))
-                {
-                    if (!bannedList.Contains(sender.ToString())) {
-                        String welcome = "Witamy na serwerze " + serverName;
-                        Client serverClient = new Client();
-                        serverClient.endpoint = sender;
+                try {
+                    data = server.Receive(ref sender);
+
+                    //Jeśli serwer odbiera wiadomość z początkiem "1" user się połączył do serwera
+                    //Dodaje go do listy klientów oraz wysyła wiadomość powitalną
+                    if (data[0] == Convert.ToByte(1))
+                    {
+                        if (!bannedList.Contains(sender.Address.ToString())) {
+                            String welcome = "Witamy na serwerze " + serverName;
+                            Client serverClient = new Client();
+                            serverClient.endpoint = sender;
+                            byte[] user = new byte[data[1]];
+                            for (int i = 0; i < data[1]; i++)
+                            {
+                                user[i] = data[i + 2];
+                            }
+                            String userNickname = Encoding.ASCII.GetString(user);
+                            do {
+                                if (clientList.Any(Client => Client.ClientName == userNickname)) {
+                                    userNickname += "(" + tempUserName + ")";
+                                    tempUserName++;
+                                }
+                            } while (clientList.Any(Client => Client.ClientName == userNickname));
+                            serverClient.ClientName = userNickname;
+                            serverClient.Channel = channelList[0];
+                            clientList.Add(serverClient);
+                            Console.WriteLine("Połączył się " + userNickname +
+                                " z adresu " + sender.Address + "cos: " +sender);
+
+                            data = Encoding.ASCII.GetBytes(welcome);
+                            server.SendAsync(data, data.Length, sender);
+
+                            sendList = true;
+                        } else if(bannedList.Contains(sender.Address.ToString())) {
+                            byte[] banned = new byte[1];
+                            banned[0] = Convert.ToByte(3);
+                            server.SendAsync(banned, banned.Length, sender);
+                        }
+                    }
+                    //Jeśli serwer odbiera wiadomość z początkiem "2" jest to wiadomość z czatu
+                    //Przekazuje ją dalej wszystkim klientów na serwerze
+                    else if (data[0] == Convert.ToByte(2))
+                    {
+                        byte[] user = new byte[data[1]];
+                        byte[] message = new byte[data[2]];
+                        for (int i = 0; i < data[1]; i++)
+                        {
+                            user[i] = data[i + 3];
+                        }
+                        for (int i = 0; i < data[2]; i++)
+                        {
+                            message[i] = data[i + 3 + data[1]];
+                        }
+                        String userNickname = Encoding.ASCII.GetString(user);
+                        String userMessage = Encoding.ASCII.GetString(message);
+                        Console.WriteLine(userNickname + ": " + userMessage);
+                        foreach (Client svrClient in clientList)
+                        {
+                            server.SendAsync(data, data.Length, svrClient.endpoint);
+                        }
+                        //Jeśli serwer odbiera wiadomość z początkiem "3" user się rozłączył z serwera
+                        //Usuwa go z listy klientów
+                    }
+                    else if (data[0] == Convert.ToByte(3))
+                    {
                         byte[] user = new byte[data[1]];
                         for (int i = 0; i < data[1]; i++)
                         {
                             user[i] = data[i + 2];
                         }
                         String userNickname = Encoding.ASCII.GetString(user);
-                        do {
-                            if (clientList.Any(Client => Client.ClientName == userNickname)) {
-                                userNickname += "(" + tempUserName + ")";
-                                tempUserName++;
-                            }
-                        } while (clientList.Any(Client => Client.ClientName == userNickname));
-                        serverClient.ClientName = userNickname;
-                        serverClient.Channel = channelList[0];
-                        clientList.Add(serverClient);
-                        Console.WriteLine("Połączył się " + userNickname +
-                            " z adresu " + sender.Address);
 
-                        data = Encoding.ASCII.GetBytes(welcome);
-                        server.SendAsync(data, data.Length, sender);
-
+                        clientList.RemoveAll(Client => Client.ClientName == userNickname);
                         sendList = true;
-                    }                  
-                }
-                //Jeśli serwer odbiera wiadomość z początkiem "2" jest to wiadomość z czatu
-                //Przekazuje ją dalej wszystkim klientów na serwerze
-                else if (data[0] == Convert.ToByte(2))
-                {
-                    byte[] user = new byte[data[1]];
-                    byte[] message = new byte[data[2]];
-                    for (int i = 0; i < data[1]; i++)
-                    {
-                        user[i] = data[i + 3];
-                    }
-                    for (int i = 0; i < data[2]; i++)
-                    {
-                        message[i] = data[i + 3 + data[1]];
-                    }
-                    String userNickname = Encoding.ASCII.GetString(user);
-                    String userMessage = Encoding.ASCII.GetString(message);
-                    Console.WriteLine(userNickname + ": " + userMessage);
-                    foreach(Client svrClient in clientList)
-                    {
-                        server.SendAsync(data, data.Length, svrClient.endpoint);
-                    }
-                //Jeśli serwer odbiera wiadomość z początkiem "3" user się rozłączył z serwera
-                //Usuwa go z listy klientów
-                }
-                else if (data[0] == Convert.ToByte(3))
-                {
-                    byte[] user = new byte[data[1]];
-                    for (int i = 0; i < data[1]; i++)
-                    {
-                        user[i] = data[i + 2];
-                    }
-                    String userNickname = Encoding.ASCII.GetString(user);
 
-                    clientList.RemoveAll(Client => Client.ClientName == userNickname);
-                    sendList = true;
-
-                    Console.WriteLine("Użytkownik " + userNickname +
-                        " wyszedł z serwera.");
-                }
-                //Jeśli serwer odbiera wiadomość z początkiem "9" jest to wiadomość audio
-                //Rozsyła ją dalej do wszystkich klientów z wyjątkiem klienta od którego przyszła ta wiadomość
-                else if (data[0] == Convert.ToByte(9))
-                {
-                    foreach(Client svrClient in clientList)
+                        Console.WriteLine("Użytkownik " + userNickname +
+                            " wyszedł z serwera.");
+                    }
+                    //Jeśli serwer odbiera wiadomość z początkiem "9" jest to wiadomość audio
+                    //Rozsyła ją dalej do wszystkich klientów z wyjątkiem klienta od którego przyszła ta wiadomość
+                    else if (data[0] == Convert.ToByte(9))
                     {
-                        if(sender.ToString() != svrClient.endpoint.ToString())
+                        foreach (Client svrClient in clientList)
                         {
-                            server.SendAsync(data, data.Length, svrClient.endpoint);
+                            if (sender.ToString() != svrClient.endpoint.ToString())
+                            {
+                                server.SendAsync(data, data.Length, svrClient.endpoint);
+                            }
                         }
                     }
-                }
-                //Jeśli ktoś się łączy lub rozłącza z serwera zostaje wywołana ta "funkcja"
-                //Pobiera liste aktualnych klientów i rozsyła do wszystkich klientów na serwerze
-                if (sendList == true)
+                    //Jeśli ktoś się łączy lub rozłącza z serwera zostaje wywołana ta "funkcja"
+                    //Pobiera liste aktualnych klientów i rozsyła do wszystkich klientów na serwerze
+                    if (sendList == true)
+                    {
+                        String clientNames = "";
+                        foreach (Client svrClient in clientList)
+                        {
+                            clientNames += svrClient.ClientName + "*";
+                        }
+
+                        byte[] clientNamesBytes = new byte[clientNames.Length + 1];
+                        clientNamesBytes[0] = Convert.ToByte(5);
+                        byte[] tempClientNameBytes = new byte[clientNames.Length];
+                        tempClientNameBytes = Encoding.ASCII.GetBytes(clientNames);
+                        for (int i = 0; i < tempClientNameBytes.Length; i++)
+                        {
+                            clientNamesBytes[i + 1] = tempClientNameBytes[i];
+                        }
+
+                        foreach (Client svrClient in clientList)
+                        {
+                            server.Send(clientNamesBytes, clientNamesBytes.Length, svrClient.endpoint);
+                        }
+                        sendList = false;
+                    }
+                } catch(Exception ex)
                 {
-                    String clientNames = "";
-                    foreach (Client svrClient in clientList)
-                    {
-                        clientNames += svrClient.ClientName + "*";
-                    }
 
-                    byte[] clientNamesBytes = new byte[clientNames.Length + 1];
-                    clientNamesBytes[0] = Convert.ToByte(5);
-                    byte[] tempClientNameBytes = new byte[clientNames.Length];
-                    tempClientNameBytes = Encoding.ASCII.GetBytes(clientNames);
-                    for (int i = 0; i < tempClientNameBytes.Length; i++)
-                    {
-                        clientNamesBytes[i + 1] = tempClientNameBytes[i];
-                    }
-
-                    foreach (Client svrClient in clientList)
-                    {
-                        server.Send(clientNamesBytes, clientNamesBytes.Length, svrClient.endpoint);
-                    }
-                    sendList = false;
                 }
                 
             }
