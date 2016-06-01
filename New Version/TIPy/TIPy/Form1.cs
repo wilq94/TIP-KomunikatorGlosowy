@@ -27,10 +27,12 @@ namespace TIPy
         Thread thread, thread2;
         int bitRate = 0, bitDepth = 0, deviceID = 0;
         byte[] serverData;
+        bool isConnected = false;
 
         public Form1()
         {
             InitializeComponent();
+            menuStrip1.Renderer = new MyRenderer();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -39,66 +41,94 @@ namespace TIPy
             comboBox1.SelectedIndex = 0;
             comboBox2.SelectedIndex = 7;
             InitializeButtons(); // Ustawia tekst w przyciskach i polach tekstowych
+            dataGridView2.BackgroundColor = Color.Red;
         }
 
         private void connect_Click(object sender, EventArgs e)
         {
-            textBox1.Enabled = false;
-            connect_btn.Enabled = false;
-
-            initializeWaveInfo();
-            client = new UdpClient();
-            iep = new IPEndPoint(IPAddress.Parse(textBox2.Text), 15000);
-            serverResponse = new IPEndPoint(IPAddress.Any, 0);
-            client.Connect(iep);
-            SendWelcomeMessage();
-            ReceiveWelcomeMessage();
-            InitializeWaveIn();
-            initializeWaveOut();
-            thread = new Thread(new ThreadStart(listening));
-            thread.Name = "ReceivedMessagesListener";
-            thread.Start();
-            thread2 = new Thread(new ThreadStart(voiceStreaming));
-            thread2.Name = "VoiceStreamer";
-            thread2.Start();
-        }
+            if (textBox1.Text == "")
+            {
+                MessageBox.Show("Wpisz swój pseudonim", "Błąd",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            } else if (textBox2.Text == "")
+            {
+                MessageBox.Show("Wpisz adres IP", "Błąd",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else {
+                initializeConnection();
+            }
+        }        
 
         private void sentmsg_Click(object sender, EventArgs e)
         {
-            byte[] data = new byte[3 + textBox3.Text.Length + textBox1.Text.Length];
-            byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
-            byte[] message = Encoding.ASCII.GetBytes(textBox3.Text);
-            data[0] = Convert.ToByte(2); //Wiadomości z czatu mają na początku tablicy wartość 2
-            data[1] = Convert.ToByte(textBox1.Text.Length); //2 pole tablicy to długość nazwy usera
-            data[2] = Convert.ToByte(textBox3.Text.Length); //3 pole tablicy to długość wiadomości
-            for (int i = 0; i < userNickname.Length; i++)
+            if (isConnected == true)
             {
-                data[i + 3] = userNickname[i];
-            }
-            for (int i = 0; i < message.Length; i++)
-            {
-                data[i + 3 + userNickname.Length] = message[i];
-            }
+                try {
+                    byte[] data = new byte[3 + textBox3.Text.Length + textBox1.Text.Length];
+                    byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
+                    byte[] message = Encoding.ASCII.GetBytes(textBox3.Text);
+                    data[0] = Convert.ToByte(2); //Wiadomości z czatu mają na początku tablicy wartość 2
+                    data[1] = Convert.ToByte(textBox1.Text.Length); //2 pole tablicy to długość nazwy usera
+                    data[2] = Convert.ToByte(textBox3.Text.Length); //3 pole tablicy to długość wiadomości
+                    for (int i = 0; i < userNickname.Length; i++)
+                    {
+                        data[i + 3] = userNickname[i];
+                    }
+                    for (int i = 0; i < message.Length; i++)
+                    {
+                        data[i + 3 + userNickname.Length] = message[i];
+                    }
 
-            client.Send(data, data.Length);
+                    client.Send(data, data.Length);
+                    textBox3.Clear();
+                }
+                catch (Exception ex)
+                {
+                    var result = MessageBox.Show("Wystąpił błąd", "Błąd",
+                        MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                    if(result == DialogResult.OK)
+                    {
+                        MessageBox.Show(ex.ToString(), "Błąd",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+            }
         }
 
         private void disconnect_Click(object sender, EventArgs e)
         {
-            byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
-            byte[] data = new byte[2 + userNickname.Length];
-            data[0] = Convert.ToByte(3); //Wiadomość do serwera o rozłączeniu, ma na początku tablicy wartość 3
-            data[1] = Convert.ToByte(userNickname.Length);
-            for (int i = 0; i < userNickname.Length; i++)
+            if (isConnected == true)
             {
-                data[i + 2] = userNickname[i];
+                try {
+                    byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
+                    byte[] data = new byte[2 + userNickname.Length];
+                    data[0] = Convert.ToByte(3); //Wiadomość do serwera o rozłączeniu, ma na początku tablicy wartość 3
+                    data[1] = Convert.ToByte(userNickname.Length);
+                    for (int i = 0; i < userNickname.Length; i++)
+                    {
+                        data[i + 2] = userNickname[i];
+                    }
+                    client.Send(data, data.Length);
+                    thread.Abort();
+                    client.Close();
+                    listBox1.Items.Clear();
+                    textBox1.Enabled = true;
+                    connect_btn.Enabled = true;
+                    dataGridView2.BackgroundColor = Color.Red;
+                    isConnected = false;
+                }
+                catch(Exception ex)
+                {
+                    var result = MessageBox.Show("Wystąpił błąd", "Błąd",
+                        MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+                    if(result == DialogResult.OK)
+                    {
+                        MessageBox.Show(ex.ToString(), "Błąd",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
             }
-            client.Send(data, data.Length);
-            thread.Abort();
-            client.Close();
-            listBox1.Items.Clear();
-            textBox1.Enabled = true;
-            connect_btn.Enabled = true;
         }
 
         private void GetInputDevices()
@@ -124,6 +154,7 @@ namespace TIPy
             textBox1.Text = "Nickname...";
             textBox2.Text = "127.0.0.1";
             textBox3.Text = "Twoja wiadomość...";
+            textBox4.ReadOnly = true;
         }
 
         private void InitializeWaveIn()
@@ -184,6 +215,45 @@ namespace TIPy
             while (true)
             {
 
+            }
+        }
+
+        private void initializeConnection()
+        {
+            try
+            {
+                initializeWaveInfo();
+                client = new UdpClient();
+                iep = new IPEndPoint(IPAddress.Parse(textBox2.Text), 15000);
+                serverResponse = new IPEndPoint(IPAddress.Any, 0);
+                client.Connect(iep);
+                SendWelcomeMessage();
+                ReceiveWelcomeMessage();
+                isConnected = true;
+                if (isConnected == true)
+                {
+                    textBox1.Enabled = false;
+                    connect_btn.Enabled = false;
+                    dataGridView2.BackgroundColor = Color.Green;
+                    InitializeWaveIn();
+                    initializeWaveOut();
+                    thread = new Thread(new ThreadStart(listening));
+                    thread.Name = "ReceivedMessagesListener";
+                    thread.Start();
+                    thread2 = new Thread(new ThreadStart(voiceStreaming));
+                    thread2.Name = "VoiceStreamer";
+                    thread2.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                isConnected = false;
+                var result = MessageBox.Show("Nie można się połączyć z serwerem", "Błąd",
+                    MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
+                if (result == DialogResult.Retry)
+                {
+                    initializeConnection();
+                }
             }
         }
 
@@ -285,6 +355,43 @@ namespace TIPy
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
+            }
+        }
+
+        private class MyRenderer : ToolStripProfessionalRenderer
+        {
+            public MyRenderer() : base(new MyColors()) { }
+        }
+
+        private class MyColors : ProfessionalColorTable
+        {
+            public override Color MenuItemSelected
+            {
+                get { return Color.DarkCyan; }
+            }
+            public override Color MenuItemSelectedGradientBegin
+            {
+                get { return Color.DarkCyan; }
+            }
+            public override Color MenuItemSelectedGradientEnd
+            {
+                get { return Color.DarkCyan; }
+            }
+            public override Color MenuItemPressedGradientBegin
+            {
+                get { return Color.DarkCyan; }
+            }
+            public override Color MenuItemPressedGradientEnd
+            {
+                get { return Color.DarkCyan; }
+            }
+            public override Color MenuItemBorder
+            {
+                get { return Color.DarkGray; }
+            }
+            public override Color MenuBorder
+            {
+                get { return Color.Cyan; }
             }
         }
     }

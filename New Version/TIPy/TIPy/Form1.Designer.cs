@@ -31,6 +31,9 @@
             this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.połaczeniaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.połaczToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rozłaczToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ulubioneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ustawieniaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pomocToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -53,6 +56,9 @@
             this.comboBox3 = new System.Windows.Forms.ComboBox();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.opcjeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.instrukcjaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.kontaktToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
@@ -77,13 +83,44 @@
             // 
             // połaczeniaToolStripMenuItem
             // 
+            this.połaczeniaToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(10)))));
+            this.połaczeniaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.połaczToolStripMenuItem,
+            this.rozłaczToolStripMenuItem,
+            this.ulubioneToolStripMenuItem});
             this.połaczeniaToolStripMenuItem.ForeColor = System.Drawing.Color.Snow;
             this.połaczeniaToolStripMenuItem.Name = "połaczeniaToolStripMenuItem";
             this.połaczeniaToolStripMenuItem.Size = new System.Drawing.Size(75, 20);
-            this.połaczeniaToolStripMenuItem.Text = "Połaczenia";
+            this.połaczeniaToolStripMenuItem.Text = "Połączenia";
+            // 
+            // połaczToolStripMenuItem
+            // 
+            this.połaczToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.połaczToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.połaczToolStripMenuItem.Name = "połaczToolStripMenuItem";
+            this.połaczToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.połaczToolStripMenuItem.Text = "Połącz...";
+            // 
+            // rozłaczToolStripMenuItem
+            // 
+            this.rozłaczToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.rozłaczToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.rozłaczToolStripMenuItem.Name = "rozłaczToolStripMenuItem";
+            this.rozłaczToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.rozłaczToolStripMenuItem.Text = "Rozłącz...";
+            // 
+            // ulubioneToolStripMenuItem
+            // 
+            this.ulubioneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.ulubioneToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.ulubioneToolStripMenuItem.Name = "ulubioneToolStripMenuItem";
+            this.ulubioneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ulubioneToolStripMenuItem.Text = "Ulubione...";
             // 
             // ustawieniaToolStripMenuItem
             // 
+            this.ustawieniaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.opcjeToolStripMenuItem});
             this.ustawieniaToolStripMenuItem.ForeColor = System.Drawing.Color.White;
             this.ustawieniaToolStripMenuItem.Name = "ustawieniaToolStripMenuItem";
             this.ustawieniaToolStripMenuItem.Size = new System.Drawing.Size(76, 20);
@@ -91,6 +128,9 @@
             // 
             // pomocToolStripMenuItem
             // 
+            this.pomocToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.instrukcjaToolStripMenuItem,
+            this.kontaktToolStripMenuItem});
             this.pomocToolStripMenuItem.ForeColor = System.Drawing.Color.Snow;
             this.pomocToolStripMenuItem.Name = "pomocToolStripMenuItem";
             this.pomocToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
@@ -229,7 +269,7 @@
             this.textBox3.ForeColor = System.Drawing.Color.Silver;
             this.textBox3.Location = new System.Drawing.Point(306, 432);
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(562, 16);
+            this.textBox3.Size = new System.Drawing.Size(494, 16);
             this.textBox3.TabIndex = 20;
             // 
             // sentmsg_btn
@@ -308,6 +348,30 @@
             this.comboBox2.Size = new System.Drawing.Size(185, 21);
             this.comboBox2.TabIndex = 28;
             // 
+            // opcjeToolStripMenuItem
+            // 
+            this.opcjeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.opcjeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.opcjeToolStripMenuItem.Name = "opcjeToolStripMenuItem";
+            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.opcjeToolStripMenuItem.Text = "Opcje";
+            // 
+            // instrukcjaToolStripMenuItem
+            // 
+            this.instrukcjaToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.instrukcjaToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.instrukcjaToolStripMenuItem.Name = "instrukcjaToolStripMenuItem";
+            this.instrukcjaToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.instrukcjaToolStripMenuItem.Text = "Instrukcja";
+            // 
+            // kontaktToolStripMenuItem
+            // 
+            this.kontaktToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
+            this.kontaktToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.kontaktToolStripMenuItem.Name = "kontaktToolStripMenuItem";
+            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.kontaktToolStripMenuItem.Text = "Kontakt";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -376,6 +440,12 @@
         private System.Windows.Forms.ComboBox comboBox3;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ToolStripMenuItem połaczToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rozłaczToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ulubioneToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem opcjeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem instrukcjaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem kontaktToolStripMenuItem;
     }
 }
 
