@@ -28,6 +28,7 @@ namespace TIPy
         int bitRate = 0, bitDepth = 0, deviceID = 0;
         byte[] serverData;
         bool isConnected = false;
+        bool isAllMuted = false, isMeMuted = false;
 
         public Form1()
         {
@@ -232,11 +233,26 @@ namespace TIPy
         private void voiceStreaming() {
             if (isConnected == true)
             {
+                int recording = 2;
                 waveIn.DataAvailable += sourcestream_DataAvailable;
                 waveIn.StartRecording();
                 while (true)
                 {
-
+                    if (isMeMuted == true)
+                    {
+                        if (recording == 2)
+                        {
+                            waveIn.StopRecording();
+                            recording = 1;
+                        }
+                    } else if(isMeMuted == false)
+                    {
+                        if (recording == 1)
+                        {
+                            waveIn.StartRecording();
+                            recording = 2;
+                        }
+                    }
                 }
             }
         }
@@ -312,6 +328,7 @@ namespace TIPy
                 {
                     waveOut.Init(waveProvider);
                     waveOut.Play(); //Odtwarza odebrane audio
+                    
                     while (true)
                     {
                         serverData = client.Receive(ref serverResponse);
@@ -343,7 +360,10 @@ namespace TIPy
                         }
                         else if (serverData[0] == Convert.ToByte(9))
                         {
-                            waveProvider.AddSamples(serverData, 0, serverData.Length);
+                            if (isAllMuted == false)
+                            {
+                                waveProvider.AddSamples(serverData, 0, serverData.Length);
+                            }
                         }
                     }
                 }
@@ -402,9 +422,40 @@ namespace TIPy
             }
         }
 
-        private void połaczToolStripMenuItem_Click(object sender, EventArgs e)
+        private void pictureBox2_Click(object sender, EventArgs e)
         {
+            isMeMuted = !isMeMuted;
+            if(isMeMuted == true)
+            {
+                pictureBox4.Visible = true;
+            }
+        }
 
+        private void pictureBox4_Click(object sender, EventArgs e)
+        {
+            isMeMuted = !isMeMuted;
+            if (isMeMuted == false)
+            {
+                pictureBox4.Visible = false;
+            }
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            isAllMuted = !isAllMuted;
+            if (isAllMuted == false)
+            {
+                pictureBox3.Visible = false;
+            }
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            isAllMuted = !isAllMuted;
+            if (isAllMuted == true)
+            {
+                pictureBox3.Visible = true;
+            }
         }
 
         private void sourcestream_DataAvailable(object notUsed, WaveInEventArgs e)
