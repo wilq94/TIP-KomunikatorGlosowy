@@ -9,3 +9,4 @@ c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.exe
 c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.pdb
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPy\bin\Debug\NAudio.dll
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPy\bin\Debug\NAudio.xml
+C:\Users\Phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Debug\TIPy.Favourites.resources

@@ -292,7 +292,7 @@ namespace TIPy
             catch (Exception ex)
             {
                 isConnected = false;
-                var result = MessageBox.Show(ex.ToString(), "Błąd",
+                var result = MessageBox.Show("Nie można połączyć się z serwerem", "Błąd",
                     MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
                 if (result == DialogResult.Retry)
                 {
@@ -367,7 +367,7 @@ namespace TIPy
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
                     //MessageBox.Show(e.ToString());
                 }
@@ -447,6 +447,18 @@ namespace TIPy
             {
                 pictureBox3.Visible = false;
             }
+        }
+
+        private void ulubioneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Favourites form = new Favourites();
+            form.Show();
+        }
+
+        private void kontaktToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Wszelkie pytania i uwagi można zgłaszać na" + Environment.NewLine + "filip.kaszczynski@gmail.com", "Kontakt",
+                MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

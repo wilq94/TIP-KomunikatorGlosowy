@@ -106,8 +106,9 @@
             this.ulubioneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
             this.ulubioneToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.ulubioneToolStripMenuItem.Name = "ulubioneToolStripMenuItem";
-            this.ulubioneToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.ulubioneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.ulubioneToolStripMenuItem.Text = "Ulubione";
+            this.ulubioneToolStripMenuItem.Click += new System.EventHandler(this.ulubioneToolStripMenuItem_Click);
             // 
             // ustawieniaToolStripMenuItem
             // 
@@ -123,7 +124,7 @@
             this.opcjeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
             this.opcjeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.opcjeToolStripMenuItem.Name = "opcjeToolStripMenuItem";
-            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.opcjeToolStripMenuItem.Text = "Opcje";
             // 
             // pomocToolStripMenuItem
@@ -149,8 +150,9 @@
             this.kontaktToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
             this.kontaktToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.kontaktToolStripMenuItem.Name = "kontaktToolStripMenuItem";
-            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.kontaktToolStripMenuItem.Text = "Kontakt";
+            this.kontaktToolStripMenuItem.Click += new System.EventHandler(this.kontaktToolStripMenuItem_Click);
             // 
             // contextMenuStrip1
             // 
