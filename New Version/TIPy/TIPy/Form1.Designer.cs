@@ -335,6 +335,7 @@
             this.comboBox3.Name = "comboBox3";
             this.comboBox3.Size = new System.Drawing.Size(185, 21);
             this.comboBox3.TabIndex = 26;
+            this.comboBox3.Visible = false;
             // 
             // comboBox1
             // 

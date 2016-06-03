@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.Wave;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,8 +20,14 @@ namespace TIPy
 
         private void Settings_Load(object sender, EventArgs e)
         {
+            for (int i = 0; i < WaveIn.DeviceCount; i++)
+            {
+                var capabilities = WaveIn.GetCapabilities(i);
+                comboBox1.Items.Add(capabilities.ProductName);
+            }
+            comboBox1.SelectedIndex = Form1.deviceID;
             comboBox2.SelectedItem = Form1.bitDepth.ToString();
-            comboBox3.SelectedItem = Form1.bitRate.ToString();
+            comboBox3.SelectedItem = Form1.bitRate.ToString();            
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -30,6 +37,7 @@ namespace TIPy
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Form1.deviceID = comboBox1.SelectedIndex;
             Form1.bitDepth = int.Parse(comboBox2.SelectedItem.ToString());
             Form1.bitRate = int.Parse(comboBox3.SelectedItem.ToString());
             this.Close();

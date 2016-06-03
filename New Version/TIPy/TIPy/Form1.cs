@@ -25,35 +25,28 @@ namespace TIPy
         WaveOut waveOut;
         BufferedWaveProvider waveProvider;
         Thread thread, thread2;
-        int deviceID = 0;
         byte[] serverData;
         bool isConnected = false;
         bool isAllMuted = false, isMeMuted = false;
 
         private static int _bitRate = 44100;
         public static int bitRate
-        {
-            get
-            {
-                return _bitRate;
-            }
-            set
-            {
-                _bitRate = value;
-            }
-        }
+        {   get { return _bitRate; }
+            set { _bitRate = value; } }
 
         private static int _bitDepth = 16;
         public static int bitDepth
+        {   get { return _bitDepth; }
+            set { _bitDepth = value; } }
+
+        private static int _deviceID = 0;
+        public static int deviceID
+        {   get { return _deviceID; }
+            set { _deviceID = value; } }
+
+        public void setIPText(string IP)
         {
-            get
-            {
-                return _bitDepth;
-            }
-            set
-            {
-                _bitDepth = value;
-            }
+            textBox2.Text = "cos";
         }
 
         public Form1()
@@ -64,9 +57,9 @@ namespace TIPy
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            GetInputDevices(); // Pobiera dostępne urządzenia audio
-            comboBox1.SelectedIndex = 0;
-            comboBox2.SelectedIndex = 7;
+            //GetInputDevices(); // Pobiera dostępne urządzenia audio
+            //comboBox1.SelectedIndex = 0;
+            //comboBox2.SelectedIndex = 7;
             InitializeButtons(); // Ustawia tekst w przyciskach i polach tekstowych
             dataGridView2.BackgroundColor = Color.Red;
         }
@@ -92,9 +85,9 @@ namespace TIPy
             if (isConnected == true)
             {
                 try {
-                    byte[] data = new byte[3 + textBox3.Text.Length + textBox1.Text.Length];
+                    byte[] data = new byte[3 + (2*textBox3.Text.Length) + textBox1.Text.Length];
                     byte[] userNickname = Encoding.ASCII.GetBytes(textBox1.Text);
-                    byte[] message = Encoding.ASCII.GetBytes(textBox3.Text);
+                    byte[] message = encryptTextMsg(textBox3.Text);
                     data[0] = Convert.ToByte(2); //Wiadomości z czatu mają na początku tablicy wartość 2
                     data[1] = Convert.ToByte(textBox1.Text.Length); //2 pole tablicy to długość nazwy usera
                     data[2] = Convert.ToByte(textBox3.Text.Length); //3 pole tablicy to długość wiadomości
@@ -121,6 +114,44 @@ namespace TIPy
                     }
                 }
             }
+        }
+
+        private byte[] encryptTextMsg(string text)
+        {
+            Random random = new Random();
+            byte[] byteMsg = Encoding.ASCII.GetBytes(text);
+            byte[] key = new byte[byteMsg.Length];
+            byte[] encryptedMsg = new byte[byteMsg.Length];
+            random.NextBytes(key);
+            for(int i = 0; i<byteMsg.Length; i++)
+            {
+                encryptedMsg[i] = (byte)(byteMsg[i] ^ key[i]);
+            }
+            byte[] keyWithMsg = new byte[2*byteMsg.Length];
+            for(int i = 0; i<byteMsg.Length; i++)
+            {
+                keyWithMsg[i] = encryptedMsg[i];
+                keyWithMsg[i + byteMsg.Length] = key[i];
+            }
+            return keyWithMsg;
+        }
+
+        private string decryptTextMsg(byte[] encrypted)
+        {
+            byte[] encryptedMsg = new byte[encrypted.Length / 2];
+            byte[] key = new byte[encrypted.Length / 2];
+            for(int i = 0; i<(encrypted.Length / 2); i++)
+            {
+                encryptedMsg[i] = encrypted[i];
+                key[i] = encrypted[i + (encrypted.Length/2)];
+            }
+            byte[] decryptedMsg = new byte[encrypted.Length / 2];
+            for (int i = 0; i<key.Length; i++)
+            {
+                decryptedMsg[i] = (byte)(key[i] ^ encryptedMsg[i]);
+            }
+            string msg = Encoding.ASCII.GetString(decryptedMsg);
+            return msg;
         }
 
         private void disconnect_Click(object sender, EventArgs e)
@@ -176,7 +207,7 @@ namespace TIPy
                 var capabilities = WaveIn.GetCapabilities(i);
                 comboBox3.Items.Add(capabilities.ProductName);
             }
-
+            
             if (comboBox3.Items.Count > 0)
             {
                 comboBox3.SelectedIndex = 0;
@@ -235,17 +266,17 @@ namespace TIPy
         private void ReceiveChatMessage()
         {
             byte[] user = new byte[serverData[1]];
-            byte[] message = new byte[serverData[2]];
+            byte[] message = new byte[2*serverData[2]];
             for (int i = 0; i < serverData[1]; i++)
             {
                 user[i] = serverData[i + 3];
             }
-            for (int i = 0; i < serverData[2]; i++)
+            for (int i = 0; i < (2*serverData[2]); i++)
             {
                 message[i] = serverData[i + 3 + serverData[1]];
             }
             String userNickname = Encoding.ASCII.GetString(user);
-            String userMessage = Encoding.ASCII.GetString(message);
+            String userMessage = decryptTextMsg(message);
             string serverMessage = userNickname + ": " + userMessage;
             this.SetText(serverMessage);
         }
@@ -287,7 +318,7 @@ namespace TIPy
         {
             try
             {
-                initializeWaveInfo();
+                //initializeWaveInfo();
                 client = new UdpClient();
                 iep = new IPEndPoint(IPAddress.Parse(textBox2.Text), Convert.ToInt32(textBox5.Text));
                 serverResponse = new IPEndPoint(IPAddress.Any, 0);
@@ -329,8 +360,8 @@ namespace TIPy
 
         private void initializeWaveInfo()
         {
-            //bitRate = int.Parse(comboBox2.SelectedItem.ToString());
-            //bitDepth = int.Parse(comboBox1.SelectedItem.ToString());
+            bitRate = int.Parse(comboBox2.SelectedItem.ToString());
+            bitDepth = int.Parse(comboBox1.SelectedItem.ToString());
             deviceID = comboBox3.SelectedIndex;
         }
 
@@ -388,7 +419,8 @@ namespace TIPy
                         {
                             if (isAllMuted == false)
                             {
-                                waveProvider.AddSamples(serverData, 0, serverData.Length);
+                                byte[] voiceMsg = decryptVoiceMsg(serverData);
+                                waveProvider.AddSamples(voiceMsg, 0, voiceMsg.Length);
                             }
                         }
                     }
@@ -513,13 +545,50 @@ namespace TIPy
             try
             {
                 byte[] buffer = (e.Buffer);
-                buffer[0] = Convert.ToByte(9);
-                client.Send(buffer, buffer.Length);
+                byte[] encryptedBuffer = encryptVoiceMsg(buffer);
+                encryptedBuffer[0] = Convert.ToByte(9);
+                client.Send(encryptedBuffer, encryptedBuffer.Length);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
             }
+        }
+
+        private byte[] encryptVoiceMsg(byte [] voice)
+        {
+            Random random = new Random();
+            byte[] key = new byte[voice.Length];
+            byte[] encryptedMsg = new byte[voice.Length];
+            random.NextBytes(key);
+            for (int i = 0; i < voice.Length; i++)
+            {
+                encryptedMsg[i] = (byte)(voice[i] ^ key[i]);
+            }
+            byte[] keyWithMsg = new byte[2 * voice.Length];
+            for (int i = 0; i < voice.Length; i++)
+            {
+                keyWithMsg[i] = encryptedMsg[i];
+                keyWithMsg[i + voice.Length] = key[i];
+            }
+            return keyWithMsg;
+        }
+        
+        private byte[] decryptVoiceMsg(byte[] encrypted)
+        {
+            byte[] encryptedMsg = new byte[encrypted.Length / 2];
+            byte[] key = new byte[encrypted.Length / 2];
+            for (int i = 0; i < (encrypted.Length / 2); i++)
+            {
+                encryptedMsg[i] = encrypted[i];
+                key[i] = encrypted[i + (encrypted.Length / 2)];
+            }
+            byte[] decryptedMsg = new byte[encrypted.Length / 2];
+            for (int i = 0; i < key.Length; i++)
+            {
+                decryptedMsg[i] = (byte)(key[i] ^ encryptedMsg[i]);
+            }
+            return decryptedMsg;
         }
 
         private class MyRenderer : ToolStripProfessionalRenderer
