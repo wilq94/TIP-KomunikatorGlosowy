@@ -178,7 +178,7 @@ namespace TIPUDPServer
                             serverClient.Channel = channelList[0];
                             clientList.Add(serverClient);
                             Console.WriteLine("Połączył się " + userNickname +
-                                " z adresu " + sender.Address + "cos: " +sender);
+                                " z adresu " + sender.Address);
 
                             data = Encoding.ASCII.GetBytes(welcome);
                             server.SendAsync(data, data.Length, sender);

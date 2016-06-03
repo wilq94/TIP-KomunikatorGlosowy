@@ -25,10 +25,36 @@ namespace TIPy
         WaveOut waveOut;
         BufferedWaveProvider waveProvider;
         Thread thread, thread2;
-        int bitRate = 0, bitDepth = 0, deviceID = 0;
+        int deviceID = 0;
         byte[] serverData;
         bool isConnected = false;
         bool isAllMuted = false, isMeMuted = false;
+
+        private static int _bitRate = 44100;
+        public static int bitRate
+        {
+            get
+            {
+                return _bitRate;
+            }
+            set
+            {
+                _bitRate = value;
+            }
+        }
+
+        private static int _bitDepth = 16;
+        public static int bitDepth
+        {
+            get
+            {
+                return _bitDepth;
+            }
+            set
+            {
+                _bitDepth = value;
+            }
+        }
 
         public Form1()
         {
@@ -303,8 +329,8 @@ namespace TIPy
 
         private void initializeWaveInfo()
         {
-            bitRate = int.Parse(comboBox2.SelectedItem.ToString());
-            bitDepth = int.Parse(comboBox1.SelectedItem.ToString());
+            //bitRate = int.Parse(comboBox2.SelectedItem.ToString());
+            //bitDepth = int.Parse(comboBox1.SelectedItem.ToString());
             deviceID = comboBox3.SelectedIndex;
         }
 
@@ -459,6 +485,18 @@ namespace TIPy
         {
             MessageBox.Show("Wszelkie pytania i uwagi można zgłaszać na" + Environment.NewLine + "filip.kaszczynski@gmail.com", "Kontakt",
                 MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+        }
+
+        private void instrukcjaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Help form = new Help();
+            form.Show();
+        }
+
+        private void opcjeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings form = new Settings();
+            form.Show();
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)

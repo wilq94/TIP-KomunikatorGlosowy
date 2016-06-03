@@ -106,7 +106,7 @@
             this.ulubioneToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
             this.ulubioneToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.ulubioneToolStripMenuItem.Name = "ulubioneToolStripMenuItem";
-            this.ulubioneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ulubioneToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.ulubioneToolStripMenuItem.Text = "Ulubione";
             this.ulubioneToolStripMenuItem.Click += new System.EventHandler(this.ulubioneToolStripMenuItem_Click);
             // 
@@ -124,8 +124,9 @@
             this.opcjeToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
             this.opcjeToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.opcjeToolStripMenuItem.Name = "opcjeToolStripMenuItem";
-            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.opcjeToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
             this.opcjeToolStripMenuItem.Text = "Opcje";
+            this.opcjeToolStripMenuItem.Click += new System.EventHandler(this.opcjeToolStripMenuItem_Click);
             // 
             // pomocToolStripMenuItem
             // 
@@ -144,13 +145,14 @@
             this.instrukcjaToolStripMenuItem.Name = "instrukcjaToolStripMenuItem";
             this.instrukcjaToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.instrukcjaToolStripMenuItem.Text = "Instrukcja";
+            this.instrukcjaToolStripMenuItem.Click += new System.EventHandler(this.instrukcjaToolStripMenuItem_Click);
             // 
             // kontaktToolStripMenuItem
             // 
             this.kontaktToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(6)))), ((int)(((byte)(6)))), ((int)(((byte)(6)))));
             this.kontaktToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.kontaktToolStripMenuItem.Name = "kontaktToolStripMenuItem";
-            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.kontaktToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.kontaktToolStripMenuItem.Text = "Kontakt";
             this.kontaktToolStripMenuItem.Click += new System.EventHandler(this.kontaktToolStripMenuItem_Click);
             // 
@@ -344,6 +346,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(185, 21);
             this.comboBox1.TabIndex = 27;
+            this.comboBox1.Visible = false;
             // 
             // comboBox2
             // 
@@ -365,6 +368,7 @@
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(185, 21);
             this.comboBox2.TabIndex = 28;
+            this.comboBox2.Visible = false;
             // 
             // dataGridView7
             // 
