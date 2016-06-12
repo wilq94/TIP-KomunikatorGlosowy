@@ -95,5 +95,12 @@ namespace TIPy
                 
             }
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            String fav = "Obecny serwer | IP -" + setIP.Text + ":" + setPort.Text;
+            listBox1.Items.Add(fav);
+            textBox1.Text = ""; textBox2.Text = "";
+        }
     }
 }
