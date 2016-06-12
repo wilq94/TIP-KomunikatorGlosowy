@@ -9,3 +9,6 @@ c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Release\TIPy.p
 c:\users\phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Release\TIPy.csprojResolveAssemblyReference.cache
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPy\bin\Release\NAudio.dll
 C:\Users\Phil\Documents\Visual Studio 2015\Projects\TIPy\TIPy\bin\Release\NAudio.xml
+C:\Users\Phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Release\TIPy.Favourites.resources
+C:\Users\Phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Release\TIPy.Help.resources
+C:\Users\Phil\documents\visual studio 2015\Projects\TIPy\TIPy\obj\Release\TIPy.Settings.resources

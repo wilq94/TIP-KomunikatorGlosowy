@@ -44,9 +44,9 @@ namespace TIPy
         {   get { return _deviceID; }
             set { _deviceID = value; } }
 
-        public void setIPText(string IP)
+        public static void setIPText(TextBox IP)
         {
-            textBox2.Text = "cos";
+            IP.Text = "cos";
         }
 
         public Form1()
@@ -346,7 +346,7 @@ namespace TIPy
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 isConnected = false;
                 var result = MessageBox.Show("Nie można połączyć się z serwerem", "Błąd",
@@ -391,11 +391,19 @@ namespace TIPy
                         serverData = client.Receive(ref serverResponse);
                         //Podział odebranych wiadomości ze wzglęgu na zawartość pierwszego bajta w tablicy
                         //Jesli 2 to jest to wiadomość z czatu
+                        //Jeśli 4 to serwer został wyłączony
                         //Jeśli 5 to jest to lista userów
+                        //Jeśli 6 to użytkownik został wyrzucony z serwera
+                        //Jeśli 7 to uzytkownik został zbanowany z serwera
                         //Jeśli 9 to jest to wiadomość audio
                         if (serverData[0] == Convert.ToByte(2))
                         {
                             ReceiveChatMessage();
+                        }
+                        else if (serverData[0] == Convert.ToByte(4))
+                        {
+                            SetText("Serwer został wyłaczony! Zostałeś rozłączony!");
+                            DisconnectKick();
                         }
                         else if (serverData[0] == Convert.ToByte(5))
                         {
@@ -425,9 +433,8 @@ namespace TIPy
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    //MessageBox.Show(e.ToString());
                 }
             }
         }
@@ -509,7 +516,7 @@ namespace TIPy
 
         private void ulubioneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Favourites form = new Favourites();
+            Favourites form = new Favourites(textBox2, textBox5);
             form.Show();
         }
 

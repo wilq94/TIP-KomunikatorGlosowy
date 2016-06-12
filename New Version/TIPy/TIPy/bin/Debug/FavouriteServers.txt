@@ -1,1 +1,2 @@
-Mój ulubiony | IP:127.0.0.1:15000
+Serwer lokalny | IP -127.0.0.1:15000
+Serwer testowy | IP -123.123.123.123:27015
